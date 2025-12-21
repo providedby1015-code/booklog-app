@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.googleapis.com; connect-src 'self' https://www.googleapis.com; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;">
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="BookLog V37">
+    <meta name="apple-mobile-web-app-title" content="BookLog Secure">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)">
-    <link rel="manifest" href='data:application/manifest+json;base64,eyJuYW1lIjoiQm9va0xvZyBWMzciLCJzaG9ydF9uYW1lIjoiQm9va0xvZyIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjMDA1NWZmIn0='>
 
-    <title>BookLog V37 Omni-Search (Fixed)</title>
+    <title>BookLog V37 Secure Edition (Fixed V2)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -116,7 +115,8 @@
         .dark .liquid-nav-container { background: rgba(40, 40, 40, 0.8); }
         .liquid-highlighter { position: absolute; top: 2px; bottom: 2px; left: 0; background: #fff; border-radius: 6px !important; transition: all 0.2s ease-out; }
         .dark .liquid-highlighter { background: #333; }
-        .liquid-tab { position: relative; z-index: 1; flex: 1; text-align: center; font-size: 0.65rem; font-weight: 800; line-height: 28px; color: #777; cursor: pointer; }
+        /* Tab Fix: Centering and Removing Padding */
+        .liquid-tab { position: relative; z-index: 1; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: #777; cursor: pointer; padding: 0; text-align: center; }
         .liquid-tab.active { color: #000; }
         .dark .liquid-tab.active { color: #fff; }
 
@@ -167,42 +167,6 @@
         /* V37 Search Badge */
         .match-badge { position: absolute; top: 6px; left: 6px; background: rgba(var(--accent-rgb), 0.9); color: white; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; border-radius: 4px; backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 20; }
 
-	/* 3D変形のための設定 */
-.magnetic-wrap {
-    display: inline-block;
-    position: relative;
-    transform-style: preserve-3d;
-    perspective: 800px;
-}
-.magnetic-inner {
-    display: block;
-    transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1); /* 物理的な慣性 */
-    will-change: transform;
-}
-/* 光沢エフェクト */
-.magnetic-inner::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit;
-    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.4) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-    z-index: 10;
-}
-.magnetic-inner:hover::after {
-    opacity: 1;
-}
-
-/* View Transitions API (Chrome 111+ / Safari 18+) */
-/* 画面遷移時のアニメーション定義 */
-::view-transition-old(root),
-::view-transition-new(root) {
-    animation-duration: 0.4s;
-    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); /* Appleっぽいイージング */
-}
-
         /* Others */
         .donut-chart { position: relative; width: 120px; height: 120px; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
         .donut-inner { width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -224,6 +188,13 @@
         .img-edit-btn:active { transform: scale(0.9); }
         .dark .img-edit-btn { background: rgba(0,0,0,0.8); color: white; }
         @keyframes popIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Security & Compliance UI */
+        #backup-warning-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; color: #fff; z-index: 9999; padding: 12px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; transform: translateY(100%); transition: transform 0.3s ease; }
+        #backup-warning-bar.visible { transform: translateY(0); }
+        .dark #backup-warning-bar { background: #222; border-top: 1px solid #333; }
+        .legal-modal-content { font-size: 0.8rem; line-height: 1.6; color: #444; }
+        .dark .legal-modal-content { color: #ccc; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-200 min-h-screen flex flex-col font-sans text-sm transition-colors duration-0" onclick="closePopovers(event)">
@@ -232,17 +203,26 @@
     <div id="toast" class="toast"><span id="toastMsg">保存しました</span></div>
     <div id="loadingOverlay"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mb-4"></div><p class="font-bold text-xs tracking-widest">LOADING...</p></div>
     <input type="file" id="coverUpload" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+    
     <div id="popover-imgEdit" class="floating-popover">
         <div onclick="promptImageURL()" class="popover-item">画像URLを貼付</div>
         <div onclick="document.getElementById('coverUpload').click()" class="popover-item">画像をアップロード</div>
         <div onclick="resetImage()" class="popover-item text-red-500">元に戻す</div>
     </div>
 
+    <div id="backup-warning-bar">
+        <div class="flex flex-col md:flex-row md:items-center gap-2">
+            <span class="font-bold text-yellow-400">⚠ データ消失注意</span>
+            <span>データはブラウザにのみ保存されます。キャッシュ削除等で消えるため、定期的にバックアップ(JSON)を保存してください。</span>
+        </div>
+        <button onclick="dismissBackupWarning()" class="ml-4 px-3 py-1 bg-white text-black text-xs font-bold rounded-full hover:bg-gray-200">OK</button>
+    </div>
+
     <header class="sticky top-0 z-40 bg-white/95 dark:bg-darkBg/95 border-b border-gray-200 dark:border-gray-800">
         <div class="w-full px-4 md:px-6 h-14 flex justify-between items-center">
             <div class="flex items-center space-x-2 select-none cursor-pointer haptic-tap" onclick="switchView('grid')">
                 <div class="w-4 h-4 bg-black dark:bg-white rounded-sm"></div>
-                <h1 class="text-base font-extrabold tracking-widest">BOOKLOG<span class="text-accent font-light">.V37</span></h1>
+                <h1 class="text-base font-extrabold tracking-widest">BOOKLOG<span class="text-accent font-light">.SECURE</span></h1>
             </div>
             <div class="hidden md:block">
                 <div class="liquid-nav-container w-[300px]">
@@ -271,6 +251,8 @@
                     <input type="text" id="searchInput" placeholder="WEBから本を探す..." class="w-full liquid-glass rounded-smooth px-3 py-1.5 focus:border-accent text-gray-900 dark:text-gray-100 placeholder-gray-500 pr-8">
                     <button id="clearWebSearch" class="hidden absolute right-2 top-1.5 text-gray-400 hover:text-accent font-bold" onclick="clearWebSearch()">×</button>
                 </div>
+                <div class="text-[9px] text-gray-400 mt-1 ml-1 font-sans">Powered by Google Books API</div>
+
                 <div id="searchResults" class="absolute w-full bg-white dark:bg-darkCard border border-gray-200 dark:border-gray-700 shadow-glass z-50 max-h-[70vh] overflow-y-auto hidden top-full left-0 mt-2 rounded-smooth"></div>
             </div>
             <div class="flex items-center space-x-2 w-full md:w-auto justify-end z-30">
@@ -288,7 +270,7 @@
                 </div>
             </div>
         </div>
-        <div id="sharedBanner" class="hidden w-full bg-accent text-white text-[10px] font-bold text-center py-1 tracking-widest">閲覧専用モード</div>
+        <div id="sharedBanner" class="hidden w-full bg-accent text-white text-[10px] font-bold text-center py-1 tracking-widest">閲覧専用モード（編集不可）</div>
     </header>
 
     <main class="flex-grow w-full px-4 md:px-6 py-6 overflow-x-hidden relative min-h-[500px]">
@@ -303,6 +285,10 @@
         <div id="view-content-timeline" class="view-content w-full hidden"><div class="max-w-3xl mx-auto timeline-container" id="bookshelf-timeline"><div class="timeline-line"></div></div></div>
         <div id="emptyMessage" class="hidden flex flex-col items-center justify-center py-40 text-gray-300 dark:text-gray-600 absolute inset-0 pointer-events-none"><div class="w-16 h-16 border-2 border-current flex items-center justify-center mb-4 rounded-full"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></div><p class="text-xs font-bold tracking-widest uppercase">No Books Registered</p></div>
     </main>
+    
+    <footer class="w-full text-center py-6 text-[10px] text-gray-400 font-sans tracking-widest">
+        &copy; KOYO ANDO
+    </footer>
 
     <div id="modal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
         <div class="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-xl" onclick="closeModal()"></div>
@@ -338,7 +324,32 @@
         </div>
     </div>
 
-    <div id="settingsMenu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col overflow-y-auto"><div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-black"><h3 class="font-bold dark:text-white tracking-widest text-xs uppercase">設定 / 統計</h3><button onclick="toggleSettings()" class="text-xl haptic-tap dark:text-white">&times;</button></div><div class="p-6 space-y-8 flex-1"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-4">読書データ</p><div class="donut-chart mb-4" id="donutChart"><div class="donut-inner"><span id="stat-total" class="text-2xl font-extrabold dark:text-white">0</span></div></div><div class="space-y-3 text-xs"><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-gray-300 mr-2 rounded-full"></span>読みたい</div><span id="stat-unread" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>読書途中</div><span id="stat-reading" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-green-500 mr-2 rounded-full"></span>読書完了</div><span id="stat-completed" class="font-bold">0</span></div></div></div><div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800"><p class="text-[10px] font-bold text-gray-400 uppercase">データ管理</p><button onclick="generateShareLink()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">共有リンクをコピー</button><button onclick="exportData()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">バックアップ保存</button><label class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold cursor-pointer block dark:text-white">データ復元<input type="file" class="hidden" onchange="importData(this)"></label></div></div><div class="p-4 text-center text-[10px] text-gray-400 bg-gray-50 dark:bg-black">BOOKLOG V37 (Fixed)</div></div>
+    <div id="legalModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-smooth shadow-2xl overflow-hidden flex flex-col h-auto max-h-[90vh]">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-800 shrink-0">
+                <h2 class="text-xl font-extrabold text-center tracking-widest text-accent">TERMS & PRIVACY</h2>
+            </div>
+            <div class="p-6 overflow-y-auto legal-modal-content flex-1">
+                <p class="font-bold mb-2">【利用規約・免責事項】</p>
+                <ul class="list-disc pl-5 space-y-2 mb-4 text-xs leading-relaxed">
+                    <li><strong>対象ユーザー:</strong> 本サービスは日本国内居住者を対象としています。</li>
+                    <li><strong>データの保存場所:</strong> データはお客様のブラウザ内（LocalStorage）にのみ保存され、サーバーへ送信されることはありません。</li>
+                    <li><strong>禁止事項:</strong> 本アプリのソースコードの無断複製、再配布、リバースエンジニアリング、および違法行為への利用を禁止します。</li>
+                    <li><strong>著作権:</strong> 本アプリ自体の著作権は KOYO ANDO に帰属します。書籍データ（表紙・タイトル等）の権利は各権利者に帰属します。</li>
+                    <li><strong>免責事項（データ消失）:</strong> ブラウザのキャッシュクリアや不具合によるデータ消失について、開発者は一切責任を負いません。定期的なバックアップ（JSON保存）を推奨します。</li>
+                    <li><strong>免責事項（API・個人情報）:</strong> Google Books APIの停止等によりサービスが利用できなくなる可能性があります。また、入力されたメモ等に含まれる個人情報の漏洩（共有機能の誤用等を含む）について、開発者は責任を負いません。</li>
+                    <li><strong>規約の変更:</strong> 本規約は予告なく変更される場合があります。</li>
+                    <li><strong>準拠法:</strong> 本規約の解釈にあたっては、日本法を準拠法とします。</li>
+                </ul>
+                <p class="text-[10px] text-gray-500 mt-4 text-center">以下のボタンを押すことで、上記すべてに同意したものとみなされます。</p>
+            </div>
+            <div class="p-6 bg-gray-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800 shrink-0">
+                <button onclick="acceptLegal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-smooth transition haptic-tap shadow-lg">同意して利用開始</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsMenu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col overflow-y-auto"><div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-black"><h3 class="font-bold dark:text-white tracking-widest text-xs uppercase">設定 / 統計</h3><button onclick="toggleSettings()" class="text-xl haptic-tap dark:text-white">&times;</button></div><div class="p-6 space-y-8 flex-1"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-4">読書データ</p><div class="donut-chart mb-4" id="donutChart"><div class="donut-inner"><span id="stat-total" class="text-2xl font-extrabold dark:text-white">0</span></div></div><div class="space-y-3 text-xs"><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-gray-300 mr-2 rounded-full"></span>読みたい</div><span id="stat-unread" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>読書途中</div><span id="stat-reading" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-green-500 mr-2 rounded-full"></span>読書完了</div><span id="stat-completed" class="font-bold">0</span></div></div></div><div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800"><p class="text-[10px] font-bold text-gray-400 uppercase">データ管理</p><button onclick="generateShareLink()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">共有リンクをコピー (最大20冊)</button><button onclick="exportData()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">バックアップ保存</button><label class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold cursor-pointer block dark:text-white">データ復元<input type="file" class="hidden" onchange="importData(this)"></label></div><div class="text-[10px] text-gray-400">Powered by Google Books API</div></div><div class="p-4 text-center text-[10px] text-gray-400 bg-gray-50 dark:bg-black">BOOKLOG V37 (Secure)</div></div>
 
     <script>
         // === Security: Sanitization (XSS) ===
@@ -353,8 +364,7 @@
             }[tag]));
         }
 
-        // === Security: Prototype Pollution Protection & Safe JSON Parsing ===
-        // JSON.parse時にプロトタイプ汚染につながるキーを削除する
+        // === Security: Prototype Pollution Protection ===
         function secureJSONParse(text) {
             return JSON.parse(text, (key, value) => {
                 if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
@@ -365,31 +375,13 @@
             });
         }
 
-        // === Security: Schema Validation ===
-        // 読み込んだデータが想定通りの形式か厳密にチェックする
         function validateBookSchema(book) {
             if (typeof book !== 'object' || book === null) return false;
-            // 必須項目の型チェック
             const isValidId = typeof book.id === 'string' && book.id.length > 0;
             const isValidTitle = typeof book.title === 'string';
             const isValidStatus = ['unread', 'reading', 'completed'].includes(book.status);
-            // 数値項目のチェック
-            const isValidAddedAt = typeof book.addedAt === 'number' || typeof book.addedAt === 'undefined'; // 古いデータ互換
-            
-            // プロトタイプ汚染の二重チェック (念のため)
             if ('__proto__' in book || 'constructor' in book) return false;
-
             return isValidId && isValidTitle && isValidStatus;
-        }
-
-        // インポートデータ全体の検証
-        function validateImportData(json) {
-            if (Array.isArray(json)) {
-                return json.filter(validateBookSchema);
-            } else if (json.data && Array.isArray(json.data)) {
-                return json.data.filter(validateBookSchema);
-            }
-            return [];
         }
 
         // V37 HIGHLIGHT & OMNI-SEARCH
@@ -412,20 +404,79 @@
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('zenOverlay').classList.contains('active')) { closeZenMode(); } });
         function syncZen(targetId) { }
 
-        async function doSearch(q){ sBox.classList.remove('hidden');sBox.innerHTML='<div class="p-4 text-xs">検索中...</div>'; try{ const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40&orderBy=relevance`); const d=await r.json();sBox.innerHTML=''; if(d.items){ const validItems=d.items.filter(i=>i.volumeInfo); validItems.forEach(i=>{ const div=document.createElement('div'); div.className="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer border-b border-gray-200 dark:border-gray-700 haptic-tap"; const img=escapeHTML(i.volumeInfo.imageLinks?.thumbnail||''); const title=escapeHTML(i.volumeInfo.title||'No Title'); const authors=escapeHTML(i.volumeInfo.authors?.join(', ')||''); div.innerHTML=`<img src="${img}" class="w-8 h-12 object-cover mr-3 bg-gray-200 rounded-md"><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate dark:text-white">${title}</p><p class="text-[10px] text-gray-500 truncate">${authors}</p></div><span class="text-[10px] font-bold text-accent">追加</span>`; div.onclick=()=>addBook(i);sBox.appendChild(div); }); } else { sBox.innerHTML='<div class="p-4 text-xs">見つかりませんでした</div>'; } }catch{sBox.innerHTML='<div class="p-4 text-xs">エラー</div>';} }
+        async function doSearch(q){ 
+            sBox.classList.remove('hidden');
+            sBox.innerHTML='<div class="p-4 text-xs">検索中...</div>'; 
+            try{ 
+                const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40&orderBy=relevance`); 
+                const d=await r.json();
+                sBox.innerHTML=''; 
+                if(d.items){ 
+                    const validItems=d.items.filter(i=>i.volumeInfo); 
+                    validItems.forEach(i=>{ 
+                        const div=document.createElement('div'); 
+                        div.className="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer border-b border-gray-200 dark:border-gray-700 haptic-tap"; 
+                        // Security Fix: Mixed Content Block回避のため、http画像をhttpsに置換
+                        let rawImg = i.volumeInfo.imageLinks?.thumbnail || '';
+                        if(rawImg.startsWith('http:')) rawImg = rawImg.replace('http:', 'https:');
+                        const img = escapeHTML(rawImg);
+                        
+                        const title=escapeHTML(i.volumeInfo.title||'No Title'); 
+                        const authors=escapeHTML(i.volumeInfo.authors?.join(', ')||''); 
+                        div.innerHTML=`<img src="${img}" class="w-8 h-12 object-cover mr-3 bg-gray-200 rounded-md" onerror="this.src='https://via.placeholder.com/32x48?text=No+Img'"><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate dark:text-white">${title}</p><p class="text-[10px] text-gray-500 truncate">${authors}</p></div><span class="text-[10px] font-bold text-accent">追加</span>`; 
+                        div.onclick=()=>addBook(i);
+                        sBox.appendChild(div); 
+                    }); 
+                } else { 
+                    sBox.innerHTML='<div class="p-4 text-xs">見つかりませんでした</div>'; 
+                } 
+            }catch(e){
+                console.error(e);
+                sBox.innerHTML='<div class="p-4 text-xs">エラーが発生しました</div>';
+            } 
+        }
 
         function moveHighlighter(targetBtn, isMobile = false) { const highlighter = document.getElementById(isMobile ? 'liquid-highlighter-mobile' : 'liquid-highlighter-pc'); highlighter.style.width = `${targetBtn.offsetWidth}px`; highlighter.style.transform = `translateX(${targetBtn.offsetLeft}px)`; targetBtn.parentElement.querySelectorAll('.liquid-tab').forEach(b => b.classList.remove('active')); targetBtn.classList.add('active'); }
         let myBooks = []; let lastUpdated = 0; let currentView = 'grid'; let currentState = { filter: 'all', sort: 'added_desc' }; let currentEditingId = null; let localQuery = "";
         
+        // === Risk Management: Storage Event Monitoring ===
+        // 別のタブでデータが変更された場合、競合を防ぐためにリロードを促す
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'myBooksV5') {
+                alert('データが別のタブで更新されました。整合性を保つためページをリロードします。');
+                location.reload();
+            }
+        });
+
+        // === Legal: Terms Check ===
+        function checkLegal() {
+            if (!localStorage.getItem('termsAccepted_v1')) {
+                document.getElementById('legalModal').classList.remove('hidden');
+            } else {
+                // Show backup warning bar periodically or on load
+                setTimeout(() => {
+                    const dismissed = sessionStorage.getItem('backupWarningDismissed');
+                    if (!dismissed) document.getElementById('backup-warning-bar').classList.add('visible');
+                }, 1000);
+            }
+        }
+        function acceptLegal() {
+            localStorage.setItem('termsAccepted_v1', 'true');
+            document.getElementById('legalModal').classList.add('hidden');
+            document.getElementById('backup-warning-bar').classList.add('visible');
+        }
+        function dismissBackupWarning() {
+            document.getElementById('backup-warning-bar').classList.remove('visible');
+            sessionStorage.setItem('backupWarningDismissed', 'true');
+        }
+
         function initApp() { 
             if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark'); 
             const saved = localStorage.getItem('myBooksV5'); 
             if (saved) {
                 try {
-                    // Use secure parser and validator
                     const parsed = secureJSONParse(saved);
                     const validBooks = Array.isArray(parsed) ? parsed.filter(validateBookSchema) : [];
-                    if (validBooks.length < parsed.length) console.warn("[Security] Some invalid books were skipped during load.");
                     myBooks = validBooks;
                 } catch(e) {
                     console.error("Corrupted data found", e);
@@ -437,6 +488,9 @@
             document.getElementById('opt-filter-all').classList.add('selected'); 
             document.getElementById('opt-sort-added_desc').classList.add('selected'); 
             applyView(); updateStats();
+            
+            checkLegal(); // Show ToS Modal if new user
+
             const params = new URLSearchParams(window.location.search);
             if(params.get('share')) { loadSharedBooks(params.get('share')); }
         }
@@ -452,6 +506,7 @@
                 if(!e.target.closest('#rank-ui-container')) document.getElementById('rank-menu').classList.remove('open');
             }); 
             initApp(); 
+            // Removed initMagneticButtons() to fix layout shift and click issues
         });
 
         function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg || "保存しました"; t.classList.remove('hide'); t.classList.add('show'); setTimeout(() => { t.classList.remove('show'); t.classList.add('hide'); }, 2000); }
@@ -463,7 +518,9 @@
         function clearLocalSearch() { localQuery = ""; document.getElementById('localSearchInput').value = ""; document.getElementById('clearLocalSearch').classList.add('hidden'); applyView(); }
         function clearWebSearch() { document.getElementById('searchInput').value = ""; document.getElementById('searchResults').classList.add('hidden'); document.getElementById('clearWebSearch').classList.add('hidden'); }
         window.addEventListener('resize',()=>{const m=window.innerWidth<768;const b=document.getElementById(`tab-${m?'mb':'pc'}-${currentView}`);if(b)moveHighlighter(b,m);});
-        function switchView(v){ 
+        
+        // Fixed: Removed ViewTransition wrapper to ensure reliable tab switching
+        function switchView(v) {
             if(v === currentView) return;
             const oldContent = document.getElementById(`view-content-${currentView}`);
             currentView=v; 
@@ -482,7 +539,6 @@
             updateStats();
         }
 
-        // V37 OMNI SEARCH LOGIC
         function getFilteredAndSortedBooks() { 
             let filtered = myBooks.filter(b => { 
                 const matchesStatus = currentState.filter === 'all' || b.status === currentState.filter; 
@@ -580,7 +636,6 @@
         sInput.addEventListener('input',e=>{if(window.isSharedMode)return;clearTimeout(dbc);if(e.target.value.length<2){sBox.classList.add('hidden');return;}dbc=setTimeout(()=>doSearch(e.target.value),400);});
         function addBook(i){if(window.isSharedMode)return;
             const pages = i.volumeInfo.pageCount || 0;
-            // Note: secureJSONParse is for strings, here we are building objects from API directly, assuming API is consistent but we escape on output.
             myBooks.unshift({id:i.id,title:i.volumeInfo.title,author:i.volumeInfo.authors?.join(', ')||'',image:i.volumeInfo.imageLinks?.thumbnail||'',status:'unread',rank:'',page_current:0,page_total:pages,addedAt:Date.now()});
             save();applyView();sInput.value='';sBox.classList.add('hidden');}
         const modal=document.getElementById('modal'); 
@@ -591,7 +646,11 @@
                 document.getElementById('modalTitle').innerText=b.title; 
                 document.getElementById('modalAuthor').innerText=b.author; 
                 const img=document.getElementById('modalImage'); img.src=getImg(b); img.onerror=function(){this.src='https://via.placeholder.com/150x220?text=No+Image';}; 
-                document.getElementById('amazonLink').href=`https://www.amazon.co.jp/s?k=${encodeURIComponent(b.title)}`;
+                // Security: Force noopener noreferrer
+                const amzLink = document.getElementById('amazonLink');
+                amzLink.href=`https://www.amazon.co.jp/s?k=${encodeURIComponent(b.title)}`;
+                amzLink.rel = "noopener noreferrer";
+                
                 document.getElementById('memoConcepts').value=b.memo_concepts||"";
                 document.getElementById('memoSummary').value=b.memo_summary||"";
                 document.getElementById('memoReview').value=b.memo_review||"";
@@ -660,23 +719,19 @@
         function toggleSettings(){document.getElementById('settingsMenu').classList.toggle('translate-x-full');}
         function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({version:"v37",timestamp:lastUpdated,data:myBooks})],{type:"application/json"}));a.download=`booklog_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();}
         
-        // === Security: Validate Imported Data ===
         function importData(i){
             const r=new FileReader();
             r.onload=e=>{
                 try{
-                    // Use secure parser
                     const j=secureJSONParse(e.target.result);
                     let n=[];let t=0;
                     
-                    // Validate Structure
                     if(Array.isArray(j)){
                         n=j;
                     }else if(j.data){
                         n=j.data; t=j.timestamp||0;
                     }
                     
-                    // Validate Schema for all items
                     const validBooks = n.filter(validateBookSchema);
                     if(validBooks.length === 0 && n.length > 0) throw new Error("No valid book data found.");
                     if(validBooks.length < n.length) alert("警告: 一部の不正なデータはスキップされました。");
@@ -693,73 +748,57 @@
             r.readAsText(i.files[0]);
         }
         
-        async function loadSharedBooks(queryStr) { window.isSharedMode = true; document.getElementById('sharedBanner').classList.remove('hidden'); document.getElementById('searchInput').disabled = true; document.getElementById('searchInput').placeholder = "共有モード (検索不可)"; document.getElementById('loadingOverlay').classList.add('active'); myBooks = []; const items = queryStr.split(','); const BATCH_SIZE = 5; for (let i = 0; i < items.length; i += BATCH_SIZE) { const batch = items.slice(i, i + BATCH_SIZE); await Promise.all(batch.map(async (item) => { const [id, status, rank] = item.split('~'); if(!id) return; try { const r = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}`); const d = await r.json(); if(d.id) { myBooks.push({ id: d.id, title: d.volumeInfo.title, author: d.volumeInfo.authors?.join(', ') || '', image: d.volumeInfo.imageLinks?.thumbnail || '', status: status || 'unread', rank: rank || '', addedAt: Date.now() }); } } catch(e) { console.error(e); } })); await new Promise(r => setTimeout(r, 200)); } document.getElementById('loadingOverlay').classList.remove('active'); applyView(); showToast("共有ライブラリを読み込みました"); }
-        function generateShareLink() { const dataStr = myBooks.map(b => `${b.id}~${b.status||'unread'}~${b.rank||''}`).join(','); const url = `${window.location.origin}${window.location.pathname}?share=${dataStr}`; navigator.clipboard.writeText(url).then(() => alert('リンクをコピーしました')); }
+        // === Privacy: Share Logic Update ===
+        async function loadSharedBooks(queryStr) { 
+            window.isSharedMode = true; 
+            document.getElementById('sharedBanner').classList.remove('hidden'); 
+            document.getElementById('searchInput').disabled = true; 
+            document.getElementById('searchInput').placeholder = "共有モード (検索不可)"; 
+            document.getElementById('loadingOverlay').classList.add('active'); 
+            myBooks = []; 
+            const items = queryStr.split(','); 
+            // Security: Limit batch processing
+            const BATCH_SIZE = 5; 
+            for (let i = 0; i < items.length; i += BATCH_SIZE) { 
+                const batch = items.slice(i, i + BATCH_SIZE); 
+                await Promise.all(batch.map(async (item) => { 
+                    const [id, status, rank] = item.split('~'); 
+                    if(!id) return; 
+                    try { 
+                        const r = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}`); 
+                        const d = await r.json(); 
+                        if(d.id) { 
+                            myBooks.push({ 
+                                id: d.id, 
+                                title: d.volumeInfo.title, 
+                                author: d.volumeInfo.authors?.join(', ') || '', 
+                                image: d.volumeInfo.imageLinks?.thumbnail || '', 
+                                status: status || 'unread', 
+                                rank: rank || '', 
+                                addedAt: Date.now() 
+                                // Privacy: Memos are NOT loaded here
+                            }); 
+                        } 
+                    } catch(e) { console.error(e); } 
+                })); 
+                await new Promise(r => setTimeout(r, 200)); 
+            } 
+            document.getElementById('loadingOverlay').classList.remove('active'); 
+            applyView(); 
+            showToast("共有ライブラリを読み込みました"); 
+        }
 
-	// === 1. Magnetic Button Effect (Vision Pro Style) ===
-function initMagneticButtons() {
-    // 既存のボタンをラップするなどの処理が必要ですが、
-    // ここではクラス ".liquid-tab" (タブボタン) に対して適用する例です
-    const buttons = document.querySelectorAll('.liquid-tab, .p-2.5'); // タブとアイコンボタン
-
-    buttons.forEach(btn => {
-        // 構造を変更せずに適用するため、イベントリスナーで直接Transformを操作
-        btn.addEventListener('mousemove', (e) => {
-            const rect = btn.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // 中心からの距離 (-1 to 1)
-            const xPos = (x - rect.width / 2) / (rect.width / 2);
-            const yPos = (y - rect.height / 2) / (rect.height / 2);
-
-            // 光沢の位置更新
-            btn.style.setProperty('--x', `${x}px`);
-            btn.style.setProperty('--y', `${y}px`);
-
-            // 磁力移動 (ボタン自体を少しカーソルに近づける)
-            // 3D回転 (Tilt) も加える
-            const moveStrength = 5; // 移動量
-            const tiltStrength = 10; // 傾き量
-            
-            btn.style.transform = `
-                translate(${xPos * moveStrength}px, ${yPos * moveStrength}px)
-                perspective(800px)
-                rotateX(${-yPos * tiltStrength}deg) 
-                rotateY(${xPos * tiltStrength}deg)
-                scale(1.05)
-            `;
-            btn.style.zIndex = 50;
-        });
-
-        btn.addEventListener('mouseleave', () => {
-            // 元に戻す
-            btn.style.transform = 'translate(0, 0) rotateX(0) rotateY(0) scale(1)';
-            btn.style.zIndex = 1;
-            setTimeout(() => { btn.style.zIndex = ''; }, 300); // 重なり順のチラつき防止
-        });
-    });
-}
-
-// 初期化実行
-document.addEventListener('DOMContentLoaded', () => {
-    initMagneticButtons();
-});
-
-
-// === 2. Enhanced Switch View with View Transitions ===
-// 既存の switchView 関数を上書きします
-const originalSwitchView = switchView;
-switchView = function(v) {
-    // ブラウザが View Transitions API に対応しているかチェック
-    if (document.startViewTransition) {
-        document.startViewTransition(() => {
-            originalSwitchView(v); // 本来の切り替え処理を実行
-        });
-    } else {
-        originalSwitchView(v); // 非対応ならそのまま実行
-    }
-};
+        // === Privacy: Limit Share & Exclude Memos ===
+        function generateShareLink() { 
+            // Constraint: Limit to 20 books to prevent URL overflow and abuse
+            if(myBooks.length > 20) {
+                alert("共有リンクで送れるのは最新の20冊までです。\n(URLの長さ制限およびパフォーマンス保護のため)");
+            }
+            // Privacy: Construct string manually to ensure NO memos are included
+            const dataStr = myBooks.slice(0, 20).map(b => `${b.id}~${b.status||'unread'}~${b.rank||''}`).join(','); 
+            const url = `${window.location.origin}${window.location.pathname}?share=${dataStr}`; 
+            navigator.clipboard.writeText(url).then(() => alert('リンクをコピーしました\n※プライバシー保護のため、メモや画像は共有されません。')); 
+        }
     </script>
 </body>
 </html>
