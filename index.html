@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.googleapis.com; connect-src 'self' https://www.googleapis.com; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;">
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="BookLog Secure">
+    <meta name="apple-mobile-web-app-title" content="BookLog V51">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)">
 
-    <title>BookLog V37 Secure Edition (Fixed V2)</title>
+    <title>BookLog V51 Silent-Guardian Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -31,18 +30,20 @@
                         darkCard: "#121212",
                     },
                     boxShadow: {
-                        'glass': '0 4px 12px 0 rgba(0, 0, 0, 0.05)',
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
                         'glow': '0 0 20px rgba(var(--accent-rgb), 0.4)',
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         'zoom-in': 'zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'shimmer': 'shimmer 1.5s infinite linear',
+                        'pop-in': 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
                         zoomIn: { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-                        shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } }
+                        shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'translateY(-10px) scale(0.9)' }, '100%': { opacity: '1', transform: 'translateY(0) scale(1)' } }
                     }
                 }
             }
@@ -115,10 +116,55 @@
         .dark .liquid-nav-container { background: rgba(40, 40, 40, 0.8); }
         .liquid-highlighter { position: absolute; top: 2px; bottom: 2px; left: 0; background: #fff; border-radius: 6px !important; transition: all 0.2s ease-out; }
         .dark .liquid-highlighter { background: #333; }
-        /* Tab Fix: Centering and Removing Padding */
         .liquid-tab { position: relative; z-index: 1; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: #777; cursor: pointer; padding: 0; text-align: center; }
         .liquid-tab.active { color: #000; }
         .dark .liquid-tab.active { color: #fff; }
+
+        /* === TAG System UI === */
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: var(--bg-modal-input); border-radius: 8px; min-height: 42px; cursor: text; }
+        .tag-chip { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: bold; background: rgba(var(--accent-rgb), 0.1); color: var(--accent-color); border: 1px solid rgba(var(--accent-rgb), 0.2); cursor: default; transition: all 0.2s; }
+        .tag-chip:hover { background: rgba(var(--accent-rgb), 0.2); }
+        .tag-remove { margin-left: 4px; cursor: pointer; opacity: 0.6; } .tag-remove:hover { opacity: 1; }
+        .tag-input { flex: 1; min-width: 60px; background: transparent; border: none; font-size: 0.75rem; outline: none; color: var(--text-main); }
+        .tag-header { display: flex; align-items: center; padding: 12px 0; margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .dark .tag-header { border-bottom-color: rgba(255,255,255,0.1); }
+        .tag-title { font-size: 1rem; font-weight: 800; margin-right: 8px; color: var(--text-main); }
+        .tag-count { background: var(--bg-modal-input); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; color: #888; }
+
+        /* === V48 Synchronized-Flow Editor Styles === */
+        .rich-editor-wrapper { position: relative; background: var(--bg-modal-input); border-radius: 16px; transition: all 0.3s ease; border: 1px solid transparent; overflow: visible; }
+        .rich-editor-wrapper:focus-within { background: #fff; box-shadow: 0 10px 30px -10px rgba(var(--accent-rgb), 0.15); border-color: rgba(var(--accent-rgb), 0.2); }
+        .dark .rich-editor-wrapper:focus-within { background: #1a1a1c; }
+
+        .rich-toolbar { position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 6px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 50px; box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05); z-index: 100; opacity: 0; transform: translateY(10px) scale(0.95); pointer-events: none; width: auto; max-width: 140px; transition: opacity 0.2s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), max-width 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin 0.3s ease; }
+        .dark .rich-toolbar { background: rgba(40, 40, 40, 0.9); box-shadow: 0 15px 40px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1); }
+        .rich-editor-wrapper:hover .rich-toolbar, .rich-editor-wrapper:focus-within .rich-toolbar { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .rich-toolbar.expanded { max-width: 280px; padding-left: 12px; background: #fff; z-index: 9999; }
+        .dark .rich-toolbar.expanded { background: #222; }
+        .rich-toolbar.pos-bottom { bottom: auto; top: 100%; margin-bottom: 0; margin-top: 8px; }
+        @media (max-width: 480px) { .rich-toolbar.mobile-fixed { position: fixed !important; bottom: 20px !important; top: auto !important; left: 50% !important; right: auto !important; margin: 0 !important; transform: translateX(-50%) translateY(100%) !important; width: 90% !important; max-width: 350px !important; justify-content: space-between !important; padding: 10px 16px !important; box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.2) !important; opacity: 0 !important; } .rich-toolbar.mobile-fixed.expanded { transform: translateX(-50%) translateY(0) !important; opacity: 1 !important; } }
+        .toolbar-inner { display: flex; align-items: center; gap: 6px; width: 100%; justify-content: flex-end; }
+        .integrated-palette { display: flex; align-items: center; gap: 6px; width: 0; opacity: 0; overflow: hidden; white-space: nowrap; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease; }
+        .rich-toolbar.expanded .integrated-palette { width: 130px; opacity: 1; padding-right: 8px; border-right: 1px solid rgba(0,0,0,0.1); margin-right: 8px; flex-shrink: 0; }
+        .dark .rich-toolbar.expanded .integrated-palette { border-right-color: rgba(255,255,255,0.1); }
+        .rich-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #666; cursor: pointer; transition: all 0.2s; font-family: serif; font-weight: 800; flex-shrink: 0; }
+        .dark .rich-btn { color: #aaa; }
+        .rich-btn:hover { background: rgba(var(--accent-rgb), 0.1); color: var(--accent-color); }
+        .rich-btn.active-tool { background: var(--accent-color); color: #fff; box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.4); }
+        .toolbar-divider { width: 1px; height: 16px; background: rgba(0,0,0,0.1); margin: 0 2px; flex-shrink: 0; }
+        .dark .toolbar-divider { background: rgba(255,255,255,0.15); }
+        .marker-trigger-btn { transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        .rich-toolbar.expanded .marker-trigger-btn { transform: rotate(45deg); color: #ef4444; }
+        .color-gem { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; flex-shrink: 0; }
+        .color-gem:hover { transform: scale(1.3); }
+        .gem-yellow { background: #facc15; } .gem-green { background: #4ade80; } .gem-pink { background: #f472b6; } .gem-blue { background: #60a5fa; } .gem-purple { background: #c084fc; }
+        [class^="marker-"] { background: linear-gradient(transparent 60%, var(--m-color) 60%); padding: 0 2px; border-radius: 2px; }
+        .marker-yellow { --m-color: #fef08a; } .marker-green { --m-color: #bbf7d0; } .marker-pink { --m-color: #fbcfe8; } .marker-blue { --m-color: #bae6fd; } .marker-purple { --m-color: #e9d5ff; }
+        .dark .marker-yellow { --m-color: rgba(250, 204, 21, 0.4); } .dark .marker-green { --m-color: rgba(74, 222, 128, 0.4); } .dark .marker-pink { --m-color: rgba(244, 114, 182, 0.4); } .dark .marker-blue { --m-color: rgba(96, 165, 250, 0.4); } .dark .marker-purple { --m-color: rgba(192, 132, 252, 0.4); }
+        .rich-content { width: 100%; min-height: 140px; padding: 20px; font-size: 0.95rem; line-height: 2; color: var(--text-main); outline: none; white-space: pre-wrap; overflow-y: auto; }
+        .rich-content u { text-decoration-thickness: 2px; text-decoration-color: rgba(var(--accent-rgb), 0.3); }
+        .selection-guide { position: absolute; top: -40px; right: 0; background: #222; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; pointer-events: none; opacity: 0; transform: translateY(5px); transition: 0.2s; white-space: nowrap; z-index: 200; }
+        .selection-guide.show { opacity: 1; transform: translateY(0); }
 
         /* Zen Mode */
         #zenOverlay { position: fixed; inset: 0; z-index: 999999; background-color: #ffffff; display: flex; flex-direction: column; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out; }
@@ -128,8 +174,8 @@
         .dark .zen-textarea { color: #ddd; }
         .zen-close-btn { position: absolute; top: 2rem; right: 2rem; opacity: 0.3; cursor: pointer; color: #000; }
         .dark .zen-close-btn { color: #fff; }
-        .zen-trigger { position: absolute; top: 8px; right: 8px; opacity: 0; transition: opacity 0.2s; color: #9ca3af; cursor: pointer; }
-        .group:hover .zen-trigger { opacity: 1; }
+        .zen-trigger { position: absolute; bottom: 8px; right: 8px; opacity: 0; transition: opacity 0.2s; color: #9ca3af; cursor: pointer; z-index: 30; }
+        .rich-editor-wrapper:hover .zen-trigger { opacity: 1; }
 
         /* Popovers */
         .popover-container { position: relative; }
@@ -189,10 +235,39 @@
         .dark .img-edit-btn { background: rgba(0,0,0,0.8); color: white; }
         @keyframes popIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Security & Compliance UI */
-        #backup-warning-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; color: #fff; z-index: 9999; padding: 12px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; transform: translateY(100%); transition: transform 0.3s ease; }
-        #backup-warning-bar.visible { transform: translateY(0); }
-        .dark #backup-warning-bar { background: #222; border-top: 1px solid #333; }
+        /* Security & Compliance UI (V51 Modified) */
+        #backup-warning-bar { 
+            position: fixed; 
+            bottom: 24px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(20px); 
+            width: 90%; 
+            max-width: 600px; 
+            background: rgba(20, 20, 20, 0.9); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fff; 
+            z-index: 9999; 
+            padding: 14px 20px; 
+            border-radius: 16px;
+            font-size: 0.75rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            opacity: 0; 
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+        #backup-warning-bar.visible { 
+            transform: translateX(-50%) translateY(0); 
+            opacity: 1; 
+            pointer-events: auto;
+        }
+        .dark #backup-warning-bar { 
+            background: rgba(30, 30, 30, 0.9); 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
         .legal-modal-content { font-size: 0.8rem; line-height: 1.6; color: #444; }
         .dark .legal-modal-content { color: #ccc; }
     </style>
@@ -212,7 +287,7 @@
 
     <div id="backup-warning-bar">
         <div class="flex flex-col md:flex-row md:items-center gap-2">
-            <span class="font-bold text-yellow-400">⚠ データ消失注意</span>
+            <span class="font-bold text-yellow-400">注意</span>
             <span>データはブラウザにのみ保存されます。キャッシュ削除等で消えるため、定期的にバックアップ(JSON)を保存してください。</span>
         </div>
         <button onclick="dismissBackupWarning()" class="ml-4 px-3 py-1 bg-white text-black text-xs font-bold rounded-full hover:bg-gray-200">OK</button>
@@ -222,12 +297,12 @@
         <div class="w-full px-4 md:px-6 h-14 flex justify-between items-center">
             <div class="flex items-center space-x-2 select-none cursor-pointer haptic-tap" onclick="switchView('grid')">
                 <div class="w-4 h-4 bg-black dark:bg-white rounded-sm"></div>
-                <h1 class="text-base font-extrabold tracking-widest">BOOKLOG<span class="text-accent font-light">.SECURE</span></h1>
+                <h1 class="text-base font-extrabold tracking-widest">BOOKLOG37</span></h1>
             </div>
             <div class="hidden md:block">
-                <div class="liquid-nav-container w-[300px]">
-                    <div id="liquid-highlighter-pc" class="liquid-highlighter"></div>
+                <div class="liquid-nav-container w-[400px]"> <div id="liquid-highlighter-pc" class="liquid-highlighter"></div>
                     <button onclick="switchView('grid')" id="tab-pc-grid" class="liquid-tab active">GRID</button>
+                    <button onclick="switchView('tag')" id="tab-pc-tag" class="liquid-tab">TAG</button>
                     <button onclick="switchView('kanban')" id="tab-pc-kanban" class="liquid-tab">KANBAN</button>
                     <button onclick="switchView('timeline')" id="tab-pc-timeline" class="liquid-tab">TIMELINE</button>
                 </div>
@@ -241,6 +316,7 @@
             <div class="liquid-nav-container w-full">
                 <div id="liquid-highlighter-mobile" class="liquid-highlighter"></div>
                 <button onclick="switchView('grid')" id="tab-mb-grid" class="liquid-tab active">GRID</button>
+                <button onclick="switchView('tag')" id="tab-mb-tag" class="liquid-tab">TAG</button>
                 <button onclick="switchView('kanban')" id="tab-mb-kanban" class="liquid-tab">KANBAN</button>
                 <button onclick="switchView('timeline')" id="tab-mb-timeline" class="liquid-tab">TIMELINE</button>
             </div>
@@ -275,6 +351,11 @@
 
     <main class="flex-grow w-full px-4 md:px-6 py-6 overflow-x-hidden relative min-h-[500px]">
         <div id="view-content-grid" class="view-content w-full"><div id="bookshelf-grid" class="book-grid"></div></div>
+        
+        <div id="view-content-tag" class="view-content w-full hidden">
+            <div id="bookshelf-tag" class="max-w-7xl mx-auto pb-4"></div>
+        </div>
+
         <div id="view-content-kanban" class="view-content w-full h-full hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full overflow-x-auto pb-4">
                 <div class="flex flex-col h-full"><div class="flex items-center justify-between mb-4 pb-2 border-b-2 border-gray-300 dark:border-gray-700"><h3 class="font-extrabold text-xs tracking-widest text-gray-500 uppercase">読みたい</h3><span id="count-unread" class="bg-gray-200 dark:bg-gray-800 text-xs px-2 py-0.5 font-mono">0</span></div><div id="col-unread" class="kanban-col bg-gray-100 dark:bg-zinc-800 p-3 space-y-3 flex-1 transition-colors border border-dashed border-gray-300 dark:border-gray-700 rounded-smooth"></div></div>
@@ -302,6 +383,11 @@
                     </div>
                     <h2 id="modalTitle" class="text-lg font-bold text-center mb-2 leading-snug dark:text-white"></h2><p id="modalAuthor" class="text-xs text-gray-500 font-mono mb-8 text-center"></p>
                     <div class="w-full space-y-4 mt-auto">
+                        <button onclick="shareCurrentBook()" class="mb-3 block w-full text-center liquid-glass rounded-smooth py-3 text-xs font-bold hover:bg-blue-50 text-accent transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                            SHARE
+                        </button>
+
                         <a id="amazonLink" href="#" target="_blank" rel="noopener noreferrer" class="block w-full text-center liquid-glass rounded-smooth py-3 text-xs font-bold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black dark:text-gray-300 transition-colors">AMAZONで見る</a>
                         <div class="space-y-1 relative" id="rank-ui-container">
                             <label class="block text-[10px] text-gray-400 font-bold uppercase">Rank</label>
@@ -309,15 +395,114 @@
                             <div id="rank-menu" class="rank-menu"><div onclick="setRank('')" class="rank-option"><span>未評価</span></div><div onclick="setRank('S')" class="rank-option"><span class="text-S font-bold">S</span> - Masterpiece</div><div onclick="setRank('A')" class="rank-option"><span class="text-A font-bold">A</span> - Great</div><div onclick="setRank('B')" class="rank-option"><span class="text-B font-bold">B</span> - Good</div><div onclick="setRank('C')" class="rank-option"><span class="text-C font-bold">C</span> - Average</div></div>
                         </div>
                         <div class="space-y-1"><label class="block text-[10px] text-gray-400 font-bold uppercase">Status</label><div class="status-segment"><div onclick="setModalStatus('unread')" id="btn-unread" class="status-tab" data-val="unread">読みたい</div><div onclick="setModalStatus('reading')" id="btn-reading" class="status-tab" data-val="reading">読書途中</div><div onclick="setModalStatus('completed')" id="btn-completed" class="status-tab" data-val="completed">読書完了</div></div></div>
+                        
+                        <div class="space-y-1 pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <label class="block text-[10px] text-gray-400 font-bold uppercase">Tags</label>
+                            <div class="tag-input-container" onclick="document.getElementById('tag-input').focus()">
+                                <div id="tag-list" class="contents"></div>
+                                <input type="text" id="tag-input" class="tag-input" placeholder="+ Add tag..." onkeypress="if(event.key==='Enter') addTag()">
+                            </div>
+                        </div>
+
                         <div class="space-y-1 pt-2 border-t border-gray-200 dark:border-gray-700"><label class="block text-[10px] text-gray-400 font-bold uppercase">Progress (Page)</label><div class="flex items-center space-x-2"><input type="number" id="current-page" placeholder="今" class="w-1/2 bg-[var(--bg-modal-input)] rounded-smooth px-3 py-2 text-xs font-bold text-center outline-none focus:border-accent border border-transparent dark:text-white" onchange="updateModalData()"><span class="text-gray-400">/</span><input type="number" id="total-page" placeholder="総" class="w-1/2 bg-[var(--bg-modal-input)] rounded-smooth px-3 py-2 text-xs font-bold text-center outline-none focus:border-accent border border-transparent dark:text-white" onchange="updateModalData()"></div></div>
                         <button id="modalDeleteBtn" onclick="deleteBook()" class="block w-full text-center py-4 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-smooth transition">削除する</button>
                     </div>
                 </div>
                 <div class="flex-1 p-8 overflow-y-auto bg-white dark:bg-darkBg">
-                    <div class="max-w-3xl mx-auto space-y-8">
-                        <div class="group relative"><label class="flex items-center text-xs font-extrabold text-accent mb-3 uppercase tracking-wider"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>重要コンセプト・気づき</label><textarea id="memoConcepts" onchange="updateModalData()" oninput="syncZen('memoConcepts')" class="w-full bg-[var(--bg-modal-input)] rounded-smooth p-5 text-sm min-h-[140px] focus:border-accent border border-transparent outline-none text-gray-800 dark:text-gray-200 transition-all"></textarea><div class="zen-trigger" onclick="openZenMode('memoConcepts')">⛶</div></div>
-                        <div class="group relative"><label class="flex items-center text-xs font-extrabold text-gray-500 mb-3 uppercase tracking-wider"><span class="w-2 h-2 bg-gray-400 mr-2 rounded-full"></span>内容要約</label><textarea id="memoSummary" onchange="updateModalData()" oninput="syncZen('memoSummary')" class="w-full bg-[var(--bg-modal-input)] rounded-smooth p-5 text-sm min-h-[140px] focus:border-gray-400 border border-transparent outline-none text-gray-800 dark:text-gray-200 transition-all"></textarea><div class="zen-trigger" onclick="openZenMode('memoSummary')">⛶</div></div>
-                        <div class="group relative"><label class="flex items-center text-xs font-extrabold text-gray-500 mb-3 uppercase tracking-wider"><span class="w-2 h-2 bg-gray-400 mr-2 rounded-full"></span>個人的な感想</label><textarea id="memoReview" onchange="updateModalData()" oninput="syncZen('memoReview')" class="w-full bg-[var(--bg-modal-input)] rounded-smooth p-5 text-sm min-h-[140px] focus:border-gray-400 border border-transparent outline-none text-gray-800 dark:text-gray-200 transition-all"></textarea><div class="zen-trigger" onclick="openZenMode('memoReview')">⛶</div></div>
+                    <div class="max-w-3xl mx-auto space-y-12 pb-20">
+                        
+                        <div class="group relative">
+                            <label class="flex items-center text-xs font-extrabold text-accent mb-3 uppercase tracking-wider"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>重要コンセプト・気づき</label>
+                            
+                            <div class="rich-editor-wrapper">
+                                <div class="rich-toolbar" id="toolbar-concepts">
+                                    <div class="toolbar-inner">
+                                        <div class="integrated-palette">
+                                            <div class="color-gem gem-yellow" onmousedown="preventFocusLoss(event); applyHighlight('yellow', 'toolbar-concepts')"></div>
+                                            <div class="color-gem gem-green" onmousedown="preventFocusLoss(event); applyHighlight('green', 'toolbar-concepts')"></div>
+                                            <div class="color-gem gem-pink" onmousedown="preventFocusLoss(event); applyHighlight('pink', 'toolbar-concepts')"></div>
+                                            <div class="color-gem gem-blue" onmousedown="preventFocusLoss(event); applyHighlight('blue', 'toolbar-concepts')"></div>
+                                            <div class="color-gem gem-purple" onmousedown="preventFocusLoss(event); applyHighlight('purple', 'toolbar-concepts')"></div>
+                                        </div>
+                                        
+                                        <div class="rich-btn" id="btn-bold-concepts" onmousedown="preventFocusLoss(event); formatText('bold', null, 'btn-bold-concepts')" title="太字"><b class="font-serif">B</b></div>
+                                        <div class="rich-btn" id="btn-underline-concepts" onmousedown="preventFocusLoss(event); formatText('underline', null, 'btn-underline-concepts')" title="下線"><u class="font-serif">U</u></div>
+                                        
+                                        <div class="toolbar-divider"></div>
+                                        
+                                        <div class="rich-btn marker-trigger-btn" onmousedown="preventFocusLoss(event); togglePrecisionPalette('toolbar-concepts', 'editor-concepts')" title="マーカー">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>
+                                        </div>
+                                    </div>
+                                    <div id="guide-concepts" class="selection-guide">テキストを選択してください</div>
+                                </div>
+                                
+                                <div id="editor-concepts" class="rich-content" contenteditable="true" oninput="syncRichText('concepts')" onmouseup="checkFormatState('concepts')" onkeyup="checkFormatState('concepts')"></div>
+                                <textarea id="memoConcepts" class="hidden"></textarea>
+                                <div class="zen-trigger" onclick="openZenMode('memoConcepts')">⛶</div>
+                            </div>
+                        </div>
+
+                        <div class="group relative">
+                            <label class="flex items-center text-xs font-extrabold text-gray-500 mb-3 uppercase tracking-wider"><span class="w-2 h-2 bg-gray-400 mr-2 rounded-full"></span>内容要約</label>
+                            <div class="rich-editor-wrapper">
+                                <div class="rich-toolbar" id="toolbar-summary">
+                                    <div class="toolbar-inner">
+                                        <div class="integrated-palette">
+                                            <div class="color-gem gem-yellow" onmousedown="preventFocusLoss(event); applyHighlight('yellow', 'toolbar-summary')"></div>
+                                            <div class="color-gem gem-green" onmousedown="preventFocusLoss(event); applyHighlight('green', 'toolbar-summary')"></div>
+                                            <div class="color-gem gem-pink" onmousedown="preventFocusLoss(event); applyHighlight('pink', 'toolbar-summary')"></div>
+                                            <div class="color-gem gem-blue" onmousedown="preventFocusLoss(event); applyHighlight('blue', 'toolbar-summary')"></div>
+                                            <div class="color-gem gem-purple" onmousedown="preventFocusLoss(event); applyHighlight('purple', 'toolbar-summary')"></div>
+                                        </div>
+                                        
+                                        <div class="rich-btn" id="btn-bold-summary" onmousedown="preventFocusLoss(event); formatText('bold', null, 'btn-bold-summary')" title="太字"><b class="font-serif">B</b></div>
+                                        <div class="rich-btn" id="btn-underline-summary" onmousedown="preventFocusLoss(event); formatText('underline', null, 'btn-underline-summary')" title="下線"><u class="font-serif">U</u></div>
+                                        <div class="toolbar-divider"></div>
+                                        
+                                        <div class="rich-btn marker-trigger-btn" onmousedown="preventFocusLoss(event); togglePrecisionPalette('toolbar-summary', 'editor-summary')" title="マーカー">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>
+                                        </div>
+                                    </div>
+                                    <div id="guide-summary" class="selection-guide">テキストを選択してください</div>
+                                </div>
+                                
+                                <div id="editor-summary" class="rich-content" contenteditable="true" oninput="syncRichText('summary')" onmouseup="checkFormatState('summary')" onkeyup="checkFormatState('summary')"></div>
+                                <textarea id="memoSummary" class="hidden"></textarea>
+                                <div class="zen-trigger" onclick="openZenMode('memoSummary')">⛶</div>
+                            </div>
+                        </div>
+
+                        <div class="group relative">
+                            <label class="flex items-center text-xs font-extrabold text-gray-500 mb-3 uppercase tracking-wider"><span class="w-2 h-2 bg-gray-400 mr-2 rounded-full"></span>個人的な感想</label>
+                            <div class="rich-editor-wrapper">
+                                <div class="rich-toolbar" id="toolbar-review">
+                                    <div class="toolbar-inner">
+                                        <div class="integrated-palette">
+                                            <div class="color-gem gem-yellow" onmousedown="preventFocusLoss(event); applyHighlight('yellow', 'toolbar-review')"></div>
+                                            <div class="color-gem gem-green" onmousedown="preventFocusLoss(event); applyHighlight('green', 'toolbar-review')"></div>
+                                            <div class="color-gem gem-pink" onmousedown="preventFocusLoss(event); applyHighlight('pink', 'toolbar-review')"></div>
+                                            <div class="color-gem gem-blue" onmousedown="preventFocusLoss(event); applyHighlight('blue', 'toolbar-review')"></div>
+                                            <div class="color-gem gem-purple" onmousedown="preventFocusLoss(event); applyHighlight('purple', 'toolbar-review')"></div>
+                                        </div>
+                                        
+                                        <div class="rich-btn" id="btn-bold-review" onmousedown="preventFocusLoss(event); formatText('bold', null, 'btn-bold-review')" title="太字"><b class="font-serif">B</b></div>
+                                        <div class="rich-btn" id="btn-underline-review" onmousedown="preventFocusLoss(event); formatText('underline', null, 'btn-underline-review')" title="下線"><u class="font-serif">U</u></div>
+                                        <div class="toolbar-divider"></div>
+                                        
+                                        <div class="rich-btn marker-trigger-btn" onmousedown="preventFocusLoss(event); togglePrecisionPalette('toolbar-review', 'editor-review')" title="マーカー">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>
+                                        </div>
+                                    </div>
+                                    <div id="guide-review" class="selection-guide">テキストを選択してください</div>
+                                </div>
+
+                                <div id="editor-review" class="rich-content" contenteditable="true" oninput="syncRichText('review')" onmouseup="checkFormatState('review')" onkeyup="checkFormatState('review')"></div>
+                                <textarea id="memoReview" class="hidden"></textarea>
+                                <div class="zen-trigger" onclick="openZenMode('memoReview')">⛶</div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -334,6 +519,7 @@
                 <ul class="list-disc pl-5 space-y-2 mb-4 text-xs leading-relaxed">
                     <li><strong>対象ユーザー:</strong> 本サービスは日本国内居住者を対象としています。</li>
                     <li><strong>データの保存場所:</strong> データはお客様のブラウザ内（LocalStorage）にのみ保存され、サーバーへ送信されることはありません。</li>
+                    <li><strong>データ保護:</strong> 保存データは簡易的な難読化処理が行われますが、共有PC等での利用時はブラウザを閉じるだけでなく、キャッシュクリア等の対策を推奨します。</li>
                     <li><strong>禁止事項:</strong> 本アプリのソースコードの無断複製、再配布、リバースエンジニアリング、および違法行為への利用を禁止します。</li>
                     <li><strong>著作権:</strong> 本アプリ自体の著作権は KOYO ANDO に帰属します。書籍データ（表紙・タイトル等）の権利は各権利者に帰属します。</li>
                     <li><strong>免責事項（データ消失）:</strong> ブラウザのキャッシュクリアや不具合によるデータ消失について、開発者は一切責任を負いません。定期的なバックアップ（JSON保存）を推奨します。</li>
@@ -349,7 +535,7 @@
         </div>
     </div>
 
-    <div id="settingsMenu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col overflow-y-auto"><div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-black"><h3 class="font-bold dark:text-white tracking-widest text-xs uppercase">設定 / 統計</h3><button onclick="toggleSettings()" class="text-xl haptic-tap dark:text-white">&times;</button></div><div class="p-6 space-y-8 flex-1"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-4">読書データ</p><div class="donut-chart mb-4" id="donutChart"><div class="donut-inner"><span id="stat-total" class="text-2xl font-extrabold dark:text-white">0</span></div></div><div class="space-y-3 text-xs"><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-gray-300 mr-2 rounded-full"></span>読みたい</div><span id="stat-unread" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>読書途中</div><span id="stat-reading" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-green-500 mr-2 rounded-full"></span>読書完了</div><span id="stat-completed" class="font-bold">0</span></div></div></div><div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800"><p class="text-[10px] font-bold text-gray-400 uppercase">データ管理</p><button onclick="generateShareLink()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">共有リンクをコピー (最大20冊)</button><button onclick="exportData()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">バックアップ保存</button><label class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold cursor-pointer block dark:text-white">データ復元<input type="file" class="hidden" onchange="importData(this)"></label></div><div class="text-[10px] text-gray-400">Powered by Google Books API</div></div><div class="p-4 text-center text-[10px] text-gray-400 bg-gray-50 dark:bg-black">BOOKLOG V37 (Secure)</div></div>
+    <div id="settingsMenu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col overflow-y-auto"><div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-black"><h3 class="font-bold dark:text-white tracking-widest text-xs uppercase">設定 / 統計</h3><button onclick="toggleSettings()" class="text-xl haptic-tap dark:text-white">&times;</button></div><div class="p-6 space-y-8 flex-1"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-4">読書データ</p><div class="donut-chart mb-4" id="donutChart"><div class="donut-inner"><span id="stat-total" class="text-2xl font-extrabold dark:text-white">0</span></div></div><div class="space-y-3 text-xs"><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-gray-300 mr-2 rounded-full"></span>読みたい</div><span id="stat-unread" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>読書途中</div><span id="stat-reading" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-green-500 mr-2 rounded-full"></span>読書完了</div><span id="stat-completed" class="font-bold">0</span></div></div></div><div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800"><p class="text-[10px] font-bold text-gray-400 uppercase">データ管理</p><button onclick="generateShareLink()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">共有 / リンクコピー (最大20冊)</button><button onclick="exportData()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">バックアップ保存</button><label class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold cursor-pointer block dark:text-white">データ復元<input type="file" class="hidden" onchange="importData(this)"></label></div><div class="text-[10px] text-gray-400">Powered by Google Books API</div></div><div class="p-4 text-center text-[10px] text-gray-400 bg-gray-50 dark:bg-black">BOOKLOG V51 Silent-Guardian</div></div>
 
     <script>
         // === Security: Sanitization (XSS) ===
@@ -375,16 +561,27 @@
             });
         }
 
+        // === Security: Input Validation ===
         function validateBookSchema(book) {
             if (typeof book !== 'object' || book === null) return false;
-            const isValidId = typeof book.id === 'string' && book.id.length > 0;
-            const isValidTitle = typeof book.title === 'string';
+            const isValidId = typeof book.id === 'string' && book.id.length > 0 && book.id.length < 50; 
+            const isValidTitle = typeof book.title === 'string' && book.title.length < 500; 
             const isValidStatus = ['unread', 'reading', 'completed'].includes(book.status);
+            if (book.customImage && book.customImage.length > 3000000) return false; 
             if ('__proto__' in book || 'constructor' in book) return false;
+            
+            // Ensure tags array exists
+            if (!Array.isArray(book.tags)) book.tags = [];
+            
             return isValidId && isValidTitle && isValidStatus;
         }
 
         // V37 HIGHLIGHT & OMNI-SEARCH
+        function stripTags(html) {
+           let doc = new DOMParser().parseFromString(html, 'text/html');
+           return doc.body.textContent || "";
+        }
+
         function highlightText(text, query) {
             const safeText = escapeHTML(text);
             if (!query) return safeText;
@@ -399,16 +596,34 @@
         }
 
         let currentZenTarget = null; let zenDebounce = null;
-        function openZenMode(targetId) { currentZenTarget = targetId; const originalVal = document.getElementById(targetId).value; const zenText = document.getElementById('zenTextarea'); zenText.value = originalVal; zenText.oninput = (e) => { const val = e.target.value; document.getElementById(targetId).value = val; clearTimeout(zenDebounce); zenDebounce = setTimeout(() => { updateModalData(); }, 1000); }; document.getElementById('zenOverlay').classList.add('active'); zenText.focus(); }
+        function openZenMode(targetId) { 
+            currentZenTarget = targetId; 
+            const originalVal = document.getElementById(targetId).value; 
+            const zenText = document.getElementById('zenTextarea'); 
+            zenText.value = stripTags(originalVal); 
+            zenText.oninput = (e) => { 
+                const val = e.target.value; 
+                document.getElementById(targetId).value = val;
+                const type = targetId.replace('memo', '').toLowerCase();
+                document.getElementById(`editor-${type}`).innerText = val; 
+                clearTimeout(zenDebounce); 
+                zenDebounce = setTimeout(() => { updateModalData(); }, 1000); 
+            }; 
+            document.getElementById('zenOverlay').classList.add('active'); 
+            zenText.focus(); 
+        }
         function closeZenMode() { document.getElementById('zenOverlay').classList.remove('active'); updateModalData(); currentZenTarget = null; }
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('zenOverlay').classList.contains('active')) { closeZenMode(); } });
-        function syncZen(targetId) { }
 
         async function doSearch(q){ 
             sBox.classList.remove('hidden');
             sBox.innerHTML='<div class="p-4 text-xs">検索中...</div>'; 
             try{ 
                 const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40&orderBy=relevance`); 
+                if (r.status === 429) {
+                    sBox.innerHTML='<div class="p-4 text-xs text-red-500">アクセスが集中しています。しばらく待ってから再検索してください。</div>';
+                    return;
+                }
                 const d=await r.json();
                 sBox.innerHTML=''; 
                 if(d.items){ 
@@ -416,81 +631,57 @@
                     validItems.forEach(i=>{ 
                         const div=document.createElement('div'); 
                         div.className="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer border-b border-gray-200 dark:border-gray-700 haptic-tap"; 
-                        // Security Fix: Mixed Content Block回避のため、http画像をhttpsに置換
                         let rawImg = i.volumeInfo.imageLinks?.thumbnail || '';
                         if(rawImg.startsWith('http:')) rawImg = rawImg.replace('http:', 'https:');
                         const img = escapeHTML(rawImg);
-                        
                         const title=escapeHTML(i.volumeInfo.title||'No Title'); 
                         const authors=escapeHTML(i.volumeInfo.authors?.join(', ')||''); 
                         div.innerHTML=`<img src="${img}" class="w-8 h-12 object-cover mr-3 bg-gray-200 rounded-md" onerror="this.src='https://via.placeholder.com/32x48?text=No+Img'"><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate dark:text-white">${title}</p><p class="text-[10px] text-gray-500 truncate">${authors}</p></div><span class="text-[10px] font-bold text-accent">追加</span>`; 
                         div.onclick=()=>addBook(i);
                         sBox.appendChild(div); 
                     }); 
-                } else { 
-                    sBox.innerHTML='<div class="p-4 text-xs">見つかりませんでした</div>'; 
-                } 
-            }catch(e){
-                console.error(e);
-                sBox.innerHTML='<div class="p-4 text-xs">エラーが発生しました</div>';
-            } 
+                } else { sBox.innerHTML='<div class="p-4 text-xs">見つかりませんでした</div>'; } 
+            }catch(e){ console.error(e); sBox.innerHTML='<div class="p-4 text-xs">エラーが発生しました</div>'; } 
         }
 
         function moveHighlighter(targetBtn, isMobile = false) { const highlighter = document.getElementById(isMobile ? 'liquid-highlighter-mobile' : 'liquid-highlighter-pc'); highlighter.style.width = `${targetBtn.offsetWidth}px`; highlighter.style.transform = `translateX(${targetBtn.offsetLeft}px)`; targetBtn.parentElement.querySelectorAll('.liquid-tab').forEach(b => b.classList.remove('active')); targetBtn.classList.add('active'); }
         let myBooks = []; let lastUpdated = 0; let currentView = 'grid'; let currentState = { filter: 'all', sort: 'added_desc' }; let currentEditingId = null; let localQuery = "";
         
-        // === Risk Management: Storage Event Monitoring ===
-        // 別のタブでデータが変更された場合、競合を防ぐためにリロードを促す
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'myBooksV5') {
-                alert('データが別のタブで更新されました。整合性を保つためページをリロードします。');
-                location.reload();
-            }
-        });
+        window.addEventListener('storage', (e) => { if (e.key === 'myBooksV5') { alert('データが別のタブで更新されました。整合性を保つためページをリロードします。'); location.reload(); } });
 
-        // === Legal: Terms Check ===
         function checkLegal() {
             if (!localStorage.getItem('termsAccepted_v1')) {
                 document.getElementById('legalModal').classList.remove('hidden');
             } else {
-                // Show backup warning bar periodically or on load
-                setTimeout(() => {
-                    const dismissed = sessionStorage.getItem('backupWarningDismissed');
-                    if (!dismissed) document.getElementById('backup-warning-bar').classList.add('visible');
-                }, 1000);
+                const dismissed = sessionStorage.getItem('backupWarningDismissed');
+                if (!dismissed) {
+                    setTimeout(() => {
+                        const bar = document.getElementById('backup-warning-bar');
+                        bar.classList.add('visible');
+                        // Auto-hide logic added
+                        setTimeout(() => {
+                            bar.classList.remove('visible');
+                        }, 10000); // 10 seconds display
+                    }, 1000);
+                }
             }
         }
-        function acceptLegal() {
-            localStorage.setItem('termsAccepted_v1', 'true');
-            document.getElementById('legalModal').classList.add('hidden');
-            document.getElementById('backup-warning-bar').classList.add('visible');
-        }
-        function dismissBackupWarning() {
-            document.getElementById('backup-warning-bar').classList.remove('visible');
-            sessionStorage.setItem('backupWarningDismissed', 'true');
-        }
+        function acceptLegal() { localStorage.setItem('termsAccepted_v1', 'true'); document.getElementById('legalModal').classList.add('hidden'); checkLegal(); /* Trigger warning flow */ }
+        function dismissBackupWarning() { document.getElementById('backup-warning-bar').classList.remove('visible'); sessionStorage.setItem('backupWarningDismissed', 'true'); }
+
+        function saveSecure(key, data) { try { const jsonStr = JSON.stringify(data); const encoded = btoa(unescape(encodeURIComponent(jsonStr))); localStorage.setItem(key, encoded); } catch (e) { console.error("Save failed", e); alert("データ容量がいっぱいです。画像を減らしてください。"); } }
+        function loadSecure(key) { const raw = localStorage.getItem(key); if (!raw) return null; try { const decoded = decodeURIComponent(escape(atob(raw))); return secureJSONParse(decoded); } catch (e) { try { return secureJSONParse(raw); } catch (e2) { console.error("Data corrupted"); return null; } } }
 
         function initApp() { 
             if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark'); 
-            const saved = localStorage.getItem('myBooksV5'); 
-            if (saved) {
-                try {
-                    const parsed = secureJSONParse(saved);
-                    const validBooks = Array.isArray(parsed) ? parsed.filter(validateBookSchema) : [];
-                    myBooks = validBooks;
-                } catch(e) {
-                    console.error("Corrupted data found", e);
-                    myBooks = [];
-                }
-            } 
+            const parsed = loadSecure('myBooksV5');
+            if (parsed) { try { const validBooks = Array.isArray(parsed) ? parsed.filter(validateBookSchema) : []; myBooks = validBooks; } catch(e) { console.error("Corrupted data found", e); myBooks = []; } } 
             const defaultTab = window.innerWidth < 768 ? document.getElementById('tab-mb-grid') : document.getElementById('tab-pc-grid'); 
             if(defaultTab) setTimeout(() => moveHighlighter(defaultTab, window.innerWidth < 768), 50); 
             document.getElementById('opt-filter-all').classList.add('selected'); 
             document.getElementById('opt-sort-added_desc').classList.add('selected'); 
             applyView(); updateStats();
-            
-            checkLegal(); // Show ToS Modal if new user
-
+            checkLegal();
             const params = new URLSearchParams(window.location.search);
             if(params.get('share')) { loadSharedBooks(params.get('share')); }
         }
@@ -502,24 +693,23 @@
             document.getElementById('localSearchInput').addEventListener('input', (e) => { localQuery = e.target.value.toLowerCase(); document.getElementById('clearLocalSearch').classList.toggle('hidden', localQuery === ""); applyView(); }); 
             const webInput = document.getElementById('searchInput'); webInput.addEventListener('input', (e) => { document.getElementById('clearWebSearch').classList.toggle('hidden', e.target.value === ""); });
             window.addEventListener('click', (e) => { 
-                if(!e.target.closest('.absolute-popover') && !e.target.closest('.popover-trigger') && !e.target.closest('.floating-popover') && !e.target.closest('.img-edit-btn')) closeAllPopovers(); 
+                if(!e.target.closest('.absolute-popover') && !e.target.closest('.popover-trigger') && !e.target.closest('.floating-popover') && !e.target.closest('.img-edit-btn') && !e.target.closest('.rich-toolbar') && !e.target.closest('.rich-btn')) closeAllPopovers(); 
                 if(!e.target.closest('#rank-ui-container')) document.getElementById('rank-menu').classList.remove('open');
             }); 
+            document.querySelector('.overflow-y-auto').addEventListener('scroll', () => { closeAllPopovers(); });
             initApp(); 
-            // Removed initMagneticButtons() to fix layout shift and click issues
         });
 
         function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg || "保存しました"; t.classList.remove('hide'); t.classList.add('show'); setTimeout(() => { t.classList.remove('show'); t.classList.add('hide'); }, 2000); }
         function togglePopover(e, type, triggerEl) { e.stopPropagation(); const popover = document.getElementById(`popover-${type}`); const isOpen = popover.classList.contains('open'); closeAllPopovers(); if (!isOpen) { popover.classList.add('open'); if(triggerEl.classList.contains('popover-trigger')) triggerEl.classList.add('active'); } }
         function toggleImageMenu(e, triggerEl) { if(window.isSharedMode) return; e.stopPropagation(); const popover = document.getElementById('popover-imgEdit'); const isOpen = popover.classList.contains('open'); closeAllPopovers(); if(!isOpen) { const rect = triggerEl.getBoundingClientRect(); popover.style.top = `${rect.bottom + 8}px`; const leftPos = rect.right - 180; popover.style.left = `${leftPos}px`; popover.classList.add('open'); } }
-        function closeAllPopovers() { document.querySelectorAll('.absolute-popover').forEach(el => el.classList.remove('open')); document.querySelectorAll('.floating-popover').forEach(el => el.classList.remove('open')); document.querySelectorAll('.popover-trigger').forEach(el => el.classList.remove('active')); }
+        function closeAllPopovers() { document.querySelectorAll('.absolute-popover').forEach(el => el.classList.remove('open')); document.querySelectorAll('.floating-popover').forEach(el => el.classList.remove('open')); document.querySelectorAll('.rich-toolbar').forEach(el => { el.classList.remove('expanded'); el.classList.remove('pos-bottom'); el.classList.remove('mobile-fixed'); }); document.querySelectorAll('.popover-trigger').forEach(el => el.classList.remove('active')); }
         function selectFilter(val) { const labels = {all:'すべて', unread:'読みたい', reading:'読書途中', completed:'読書完了'}; document.getElementById('label-filter').innerText = labels[val]; document.querySelectorAll('#popover-filter .popover-item').forEach(el => el.classList.remove('selected')); document.getElementById(`opt-filter-${val}`).classList.add('selected'); currentState.filter = val; applyView(); setTimeout(closeAllPopovers, 50); }
         function selectSort(val) { const labels = {added_desc:'新しい順', rank_desc:'ランク順', title_asc:'タイトル順'}; document.getElementById('label-sort').innerText = labels[val]; document.querySelectorAll('#popover-sort .popover-item').forEach(el => el.classList.remove('selected')); document.getElementById(`opt-sort-${val}`).classList.add('selected'); currentState.sort = val; applyView(); setTimeout(closeAllPopovers, 50); }
         function clearLocalSearch() { localQuery = ""; document.getElementById('localSearchInput').value = ""; document.getElementById('clearLocalSearch').classList.add('hidden'); applyView(); }
         function clearWebSearch() { document.getElementById('searchInput').value = ""; document.getElementById('searchResults').classList.add('hidden'); document.getElementById('clearWebSearch').classList.add('hidden'); }
-        window.addEventListener('resize',()=>{const m=window.innerWidth<768;const b=document.getElementById(`tab-${m?'mb':'pc'}-${currentView}`);if(b)moveHighlighter(b,m);});
+        window.addEventListener('resize',()=>{const m=window.innerWidth<768;const b=document.getElementById(`tab-${m?'mb':'pc'}-${currentView}`);if(b)moveHighlighter(b,m); closeAllPopovers();});
         
-        // Fixed: Removed ViewTransition wrapper to ensure reliable tab switching
         function switchView(v) {
             if(v === currentView) return;
             const oldContent = document.getElementById(`view-content-${currentView}`);
@@ -535,7 +725,7 @@
         function applyView(){ 
             document.getElementById('emptyMessage').classList.add('hidden'); 
             if(myBooks.length===0){document.getElementById('emptyMessage').classList.remove('hidden'); updateStats(); return;} 
-            if(currentView==='grid') renderGrid(); else if(currentView==='kanban') renderKanban(); else renderTimeline(); 
+            if(currentView==='grid') renderGrid(); else if(currentView==='kanban') renderKanban(); else if(currentView==='tag') renderTagView(); else renderTimeline(); 
             updateStats();
         }
 
@@ -543,11 +733,9 @@
             let filtered = myBooks.filter(b => { 
                 const matchesStatus = currentState.filter === 'all' || b.status === currentState.filter; 
                 if(!localQuery) return matchesStatus;
-                
                 const queries = localQuery.split(/\s+/).filter(q => q.length > 0);
-                const targetText = (b.title + " " + b.author + " " + (b.memo_concepts||"") + " " + (b.memo_summary||"") + " " + (b.memo_review||"")).toLowerCase();
+                const targetText = (b.title + " " + b.author + " " + (b.tags?.join(' ')||'') + " " + stripTags(b.memo_concepts||"") + " " + stripTags(b.memo_summary||"") + " " + stripTags(b.memo_review||"")).toLowerCase();
                 const matchesSearch = queries.every(q => targetText.includes(q));
-                
                 return matchesStatus && matchesSearch; 
             }); 
             filtered.sort((a,b)=>{ if(currentState.sort==='added_desc')return(b.addedAt||0)-(a.addedAt||0); if(currentState.sort==='title_asc')return a.title.localeCompare(b.title); return(b.rank?4:0)-(a.rank?4:0); }); return filtered; 
@@ -556,46 +744,32 @@
         function renderGrid(){ 
             const c=document.getElementById('bookshelf-grid');c.innerHTML=''; 
             const books = getFilteredAndSortedBooks(); 
-            books.forEach(b=>{ 
-                const d=document.createElement('div');
-                d.className='book-card-container group cursor-pointer'; 
-                d.addEventListener('click', (e) => { e.stopPropagation(); openModal(b.id, e); });
-                
-                const r=b.rank?`<div class="rank-jewel rank-${b.rank}">${b.rank}</div>`:''; 
-                const displayTitle = highlightText(b.title, localQuery);
-                const displayAuthor = highlightText(b.author, localQuery);
-                
-                let progressWidth = '100%'; let statusColor = "bg-gray-300";
-                if(b.status === 'completed') statusColor = "bg-green-500";
-                else if(b.status === 'reading') { statusColor = "bg-accent"; if(b.page_total > 0 && b.page_current > 0) progressWidth = Math.min((b.page_current / b.page_total) * 100, 100) + '%'; else progressWidth = '10%'; } 
-                else statusColor = "bg-transparent";
+            books.forEach(b=> { c.appendChild(createBookCard(b)); }); 
+        }
 
-                let badge = "";
-                if(localQuery) {
-                    const basicMatch = (b.title + b.author).toLowerCase().includes(localQuery.toLowerCase());
-                    if(!basicMatch) badge = `<div class="match-badge">📝 MEMO MATCH</div>`;
-                }
-
-                d.innerHTML=`
-                    <div class="book-card">
-                        <div class="book-img-wrapper loading">
-                            <div class="shimmer-overlay"></div>
-                            ${r} ${badge}
-                            <img src="${escapeHTML(getImg(b))}" class="book-cover-image" onload="this.parentElement.classList.remove('loading')">
-                            <div class="absolute bottom-0 left-0 h-1 ${statusColor}" style="width:${progressWidth}"></div>
-                        </div>
-                        <div class="book-info">
-                            <h3 class="book-title">${displayTitle}</h3>
-                            <p class="book-author">${displayAuthor}</p>
-                        </div>
-                    </div>`;
-                c.appendChild(d); 
-            }); 
+        function createBookCard(b) {
+            const d=document.createElement('div');
+            d.className='book-card-container group cursor-pointer'; 
+            d.addEventListener('click', (e) => { e.stopPropagation(); openModal(b.id, e); });
+            const r=b.rank?`<div class="rank-jewel rank-${b.rank}">${b.rank}</div>`:''; 
+            const displayTitle = highlightText(b.title, localQuery);
+            const displayAuthor = highlightText(b.author, localQuery);
+            let progressWidth = '100%'; let statusColor = "bg-gray-300";
+            if(b.status === 'completed') statusColor = "bg-green-500";
+            else if(b.status === 'reading') { statusColor = "bg-accent"; if(b.page_total > 0 && b.page_current > 0) progressWidth = Math.min((b.page_current / b.page_total) * 100, 100) + '%'; else progressWidth = '10%'; } 
+            else statusColor = "bg-transparent";
+            let badge = "";
+            if(localQuery) {
+                const basicMatch = (b.title + b.author + (b.tags?.join(' ')||'')).toLowerCase().includes(localQuery.toLowerCase());
+                if(!basicMatch) badge = `<div class="match-badge">📝 MEMO MATCH</div>`;
+            }
+            d.innerHTML=`<div class="book-card"><div class="book-img-wrapper loading"><div class="shimmer-overlay"></div>${r} ${badge}<img src="${escapeHTML(getImg(b))}" class="book-cover-image" onload="this.parentElement.classList.remove('loading')"><div class="absolute bottom-0 left-0 h-1 ${statusColor}" style="width:${progressWidth}"></div></div><div class="book-info"><h3 class="book-title">${displayTitle}</h3><p class="book-author">${displayAuthor}</p></div></div>`;
+            return d;
         }
 
         function renderKanban(){ 
             ['unread','reading','completed'].forEach(s=>document.getElementById(`col-${s}`).innerHTML=''); 
-            const books = myBooks.filter(b => !localQuery || (b.title + b.author).toLowerCase().includes(localQuery)); 
+            const books = myBooks.filter(b => !localQuery || (b.title + b.author + (b.tags?.join(' ')||'')).toLowerCase().includes(localQuery)); 
             books.forEach(b=>{ 
                 const s=b.status||'unread';
                 const d=document.createElement('div'); 
@@ -608,6 +782,56 @@
                 d.innerHTML=`<img src="${escapeHTML(getImg(b))}" class="w-10 h-14 object-cover bg-gray-200 shrink-0 rounded-md"><div class="min-w-0"><h4 class="font-bold text-xs truncate dark:text-white">${displayTitle}</h4><p class="text-[10px] text-gray-500 truncate">${displayAuthor}</p></div>`;
                 document.getElementById(`col-${s}`).appendChild(d); 
             }); 
+        }
+
+        /* === TAG VIEW LOGIC === */
+        function renderTagView() {
+            const container = document.getElementById('bookshelf-tag');
+            container.innerHTML = '';
+            const books = getFilteredAndSortedBooks();
+            const groups = {};
+            
+            // Group books by tag
+            books.forEach(b => {
+                if (!b.tags || b.tags.length === 0) {
+                    if (!groups['未設定']) groups['未設定'] = [];
+                    groups['未設定'].push(b);
+                } else {
+                    b.tags.forEach(t => {
+                        if (!groups[t]) groups[t] = [];
+                        groups[t].push(b);
+                    });
+                }
+            });
+
+            const sortedKeys = Object.keys(groups).sort();
+            // Move "未設定" to end
+            if(groups['未設定']) {
+                sortedKeys.splice(sortedKeys.indexOf('未設定'), 1);
+                sortedKeys.push('未設定');
+            }
+
+            sortedKeys.forEach(tag => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'mb-8';
+                
+                const header = document.createElement('div');
+                header.className = 'tag-header';
+                header.innerHTML = `<span class="tag-title"># ${escapeHTML(tag)}</span><span class="tag-count">${groups[tag].length}</span>`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'book-grid';
+                
+                groups[tag].forEach(b => {
+                    grid.appendChild(createBookCard(b));
+                });
+
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(grid);
+                container.appendChild(groupDiv);
+            });
+            
+            if (books.length === 0) container.innerHTML = '<div class="text-center text-gray-400 py-10 text-xs">No Books Found</div>';
         }
 
         function drop(e,s){e.preventDefault(); if(window.isSharedMode) return; const id=e.dataTransfer.getData("text");const b=myBooks.find(x=>x.id===id);if(b){b.status=s;save();applyView();}} function allowDrop(e){e.preventDefault();} function dragEnter(e){e.preventDefault();} function dragLeave(e){}
@@ -636,45 +860,160 @@
         sInput.addEventListener('input',e=>{if(window.isSharedMode)return;clearTimeout(dbc);if(e.target.value.length<2){sBox.classList.add('hidden');return;}dbc=setTimeout(()=>doSearch(e.target.value),400);});
         function addBook(i){if(window.isSharedMode)return;
             const pages = i.volumeInfo.pageCount || 0;
-            myBooks.unshift({id:i.id,title:i.volumeInfo.title,author:i.volumeInfo.authors?.join(', ')||'',image:i.volumeInfo.imageLinks?.thumbnail||'',status:'unread',rank:'',page_current:0,page_total:pages,addedAt:Date.now()});
+            myBooks.unshift({id:i.id,title:i.volumeInfo.title,author:i.volumeInfo.authors?.join(', ')||'',image:i.volumeInfo.imageLinks?.thumbnail||'',status:'unread',rank:'',tags:[],page_current:0,page_total:pages,addedAt:Date.now()});
             save();applyView();sInput.value='';sBox.classList.add('hidden');}
         const modal=document.getElementById('modal'); 
         
+        // === Rich Editor Functions ===
+        function preventFocusLoss(e) { e.preventDefault(); }
+        function formatText(command, value = null, btnId = null) { document.execCommand(command, false, value); updateModalData(); if(btnId) toggleActiveState(btnId); }
+        function toggleActiveState(btnId) { const btn = document.getElementById(btnId); btn.classList.toggle('active-tool'); }
+        function checkFormatState(type) {
+            const isBold = document.queryCommandState('bold'); const isUnderline = document.queryCommandState('underline');
+            const btnBold = document.getElementById(`btn-bold-${type}`); const btnUnderline = document.getElementById(`btn-underline-${type}`);
+            if(isBold) btnBold.classList.add('active-tool'); else btnBold.classList.remove('active-tool');
+            if(isUnderline) btnUnderline.classList.add('active-tool'); else btnUnderline.classList.remove('active-tool');
+        }
+
+        // === Precision Positioning Logic ===
+        function togglePrecisionPalette(toolbarId, editorId) {
+            const sel = window.getSelection(); const editor = document.getElementById(editorId); const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+            if (!range || sel.isCollapsed || !editor.contains(range.commonAncestorContainer)) { const type = toolbarId.replace('toolbar-', ''); showSelectionGuide(type); }
+            const toolbar = document.getElementById(toolbarId);
+            const isExpanded = toolbar.classList.contains('expanded');
+            document.querySelectorAll('.rich-toolbar').forEach(el => { if(el.id !== toolbarId) { el.classList.remove('expanded'); el.classList.remove('pos-bottom'); el.classList.remove('mobile-fixed'); } });
+            if (isExpanded) { toolbar.classList.remove('expanded'); toolbar.classList.remove('pos-bottom'); toolbar.classList.remove('mobile-fixed'); } 
+            else {
+                const wrapper = toolbar.closest('.rich-editor-wrapper'); const rect = wrapper.getBoundingClientRect();
+                if (window.innerWidth <= 480) { toolbar.classList.add('mobile-fixed'); } 
+                else { if (rect.top < 80) { toolbar.classList.add('pos-bottom'); } else { toolbar.classList.remove('pos-bottom'); } }
+                toolbar.classList.add('expanded');
+            }
+        }
+
+        function applyHighlight(color, toolbarId) {
+            const selection = window.getSelection(); if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0); const span = document.createElement("span"); span.className = `marker-${color}`;
+            try { const content = range.extractContents(); span.appendChild(content); range.insertNode(span); } catch(e) { document.execCommand('insertHTML', false, span.outerHTML); }
+            const toolbar = document.getElementById(toolbarId); toolbar.classList.remove('expanded'); toolbar.classList.remove('pos-bottom'); toolbar.classList.remove('mobile-fixed');
+            updateModalData(); selection.removeAllRanges();
+        }
+
+        function showSelectionGuide(type) { const guide = document.getElementById(`guide-${type}`); if(guide) { guide.classList.add('show'); setTimeout(() => { guide.classList.remove('show'); }, 1500); } }
+        function syncRichText(type) { const content = document.getElementById(`editor-${type}`).innerHTML; document.getElementById(`memo${type.charAt(0).toUpperCase() + type.slice(1)}`).value = content; updateModalData(); }
+
+        function renderTags() {
+            const b = myBooks.find(x => x.id === currentEditingId);
+            if (!b) return;
+            const container = document.getElementById('tag-list');
+            container.innerHTML = '';
+            if(!b.tags) b.tags = [];
+            b.tags.forEach(tag => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${escapeHTML(tag)} <span class="tag-remove" onclick="removeTag('${escapeHTML(tag)}')">×</span>`;
+                container.appendChild(chip);
+            });
+        }
+
+        function addTag() {
+            const input = document.getElementById('tag-input');
+            const val = input.value.trim();
+            if (!val) return;
+            const b = myBooks.find(x => x.id === currentEditingId);
+            if (b) {
+                if (!b.tags) b.tags = [];
+                if (!b.tags.includes(val)) {
+                    b.tags.push(val);
+                    save();
+                    renderTags();
+                    if(currentView === 'tag') applyView(); // Refresh background view
+                }
+                input.value = '';
+            }
+        }
+
+        function removeTag(tag) {
+            const b = myBooks.find(x => x.id === currentEditingId);
+            if (b && b.tags) {
+                b.tags = b.tags.filter(t => t !== tag);
+                save();
+                renderTags();
+                if(currentView === 'tag') applyView();
+            }
+        }
+
+        /* === SMART SHARE FEATURE (V50) === */
+        async function smartShare(title, text, url) {
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: title, text: text, url: url });
+                    showToast('共有しました');
+                } catch (err) {
+                    if (err.name !== 'AbortError') console.error(err);
+                }
+            } else {
+                navigator.clipboard.writeText(`${text}\n${url}`);
+                showToast('リンクをコピーしました');
+            }
+        }
+
+        function shareCurrentBook() {
+            const b = myBooks.find(x => x.id === currentEditingId);
+            if (!b) return;
+            
+            const statusMap = { unread: '【読みたい】', reading: '【読書中】', completed: '【読了】' };
+            const statusText = statusMap[b.status] || '';
+            const rankText = b.rank ? `(Rank: ${b.rank})` : '';
+            
+            const shareText = `${statusText} ${b.title} / ${b.author} ${rankText}\n#BookLog`;
+            // Current URL base (assuming clean URL or current path)
+            const url = window.location.href.split('?')[0]; 
+            
+            smartShare(b.title, shareText, url);
+        }
+
+        function generateShareLink() { 
+            const dataStr = myBooks.slice(0, 20).map(b => `${b.id}~${b.status||'unread'}~${b.rank||''}`).join(','); 
+            const url = `${window.location.origin}${window.location.pathname}?share=${dataStr}`; 
+            
+            // Upgrade to Smart Share
+            if(navigator.share) {
+                navigator.share({
+                    title: 'My BookLog Library',
+                    text: '私の読書記録をシェアします。(最大20冊)',
+                    url: url
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(url).then(() => alert('リンクをコピーしました\n※プライバシー保護のため、メモや画像は共有されません。'));
+            }
+        }
+
         function openModal(id, event){ 
             try {
                 const b=myBooks.find(x=>x.id===id);if(!b)return;currentEditingId=id; 
                 document.getElementById('modalTitle').innerText=b.title; 
                 document.getElementById('modalAuthor').innerText=b.author; 
                 const img=document.getElementById('modalImage'); img.src=getImg(b); img.onerror=function(){this.src='https://via.placeholder.com/150x220?text=No+Image';}; 
-                // Security: Force noopener noreferrer
-                const amzLink = document.getElementById('amazonLink');
-                amzLink.href=`https://www.amazon.co.jp/s?k=${encodeURIComponent(b.title)}`;
-                amzLink.rel = "noopener noreferrer";
+                const amzLink = document.getElementById('amazonLink'); amzLink.href=`https://www.amazon.co.jp/s?k=${encodeURIComponent(b.title)}`; amzLink.rel = "noopener noreferrer";
                 
-                document.getElementById('memoConcepts').value=b.memo_concepts||"";
-                document.getElementById('memoSummary').value=b.memo_summary||"";
-                document.getElementById('memoReview').value=b.memo_review||"";
-                document.getElementById('current-page').value = b.page_current || "";
-                document.getElementById('total-page').value = b.page_total || "";
+                document.getElementById('editor-concepts').innerHTML = b.memo_concepts || ""; document.getElementById('memoConcepts').value = b.memo_concepts || "";
+                document.getElementById('editor-summary').innerHTML = b.memo_summary || ""; document.getElementById('memoSummary').value = b.memo_summary || "";
+                document.getElementById('editor-review').innerHTML = b.memo_review || ""; document.getElementById('memoReview').value = b.memo_review || "";
+                document.getElementById('current-page').value = b.page_current || ""; document.getElementById('total-page').value = b.page_total || "";
+                
                 updateStatusBtns(b.status||'unread'); updateRankUI(b.rank||"");
+                renderTags(); // Render tags
+
                 const isShared = window.isSharedMode;
-                document.getElementById('memoConcepts').readOnly = isShared;
-                document.getElementById('memoSummary').readOnly = isShared;
-                document.getElementById('memoReview').readOnly = isShared;
-                document.getElementById('current-page').readOnly = isShared;
-                document.getElementById('total-page').readOnly = isShared;
-                document.getElementById('modalDeleteBtn').style.display = isShared ? 'none' : 'block';
-                document.getElementById('imgEditBtn').style.display = isShared ? 'none' : 'flex';
-                document.getElementById('rank-trigger').disabled = isShared;
+                ['concepts', 'summary', 'review'].forEach(type => { document.getElementById(`editor-${type}`).contentEditable = !isShared; });
+                document.getElementById('current-page').readOnly = isShared; document.getElementById('total-page').readOnly = isShared;
+                document.getElementById('modalDeleteBtn').style.display = isShared ? 'none' : 'block'; document.getElementById('imgEditBtn').style.display = isShared ? 'none' : 'flex';
+                document.getElementById('rank-trigger').disabled = isShared; document.getElementById('tag-input').disabled = isShared;
                 
-                if(event && event.clientX) {
-                    const card = document.getElementById('modalCard');
-                    const originX = (event.clientX / window.innerWidth) * 100;
-                    const originY = (event.clientY / window.innerHeight) * 100;
-                    card.style.transformOrigin = `${originX}% ${originY}%`;
-                }
+                if(event && event.clientX) { const card = document.getElementById('modalCard'); const originX = (event.clientX / window.innerWidth) * 100; const originY = (event.clientY / window.innerHeight) * 100; card.style.transformOrigin = `${originX}% ${originY}%`; }
                 modal.classList.remove('hidden'); modal.classList.add('open'); 
-            } catch(e) { showToast("エラー: 本を開けませんでした"); }
+            } catch(e) { console.log(e); showToast("エラー: 本を開けませんでした"); }
         }
         function closeModal(){modal.classList.add('hidden'); modal.classList.remove('open'); currentEditingId=null;}
         function updateStatusBtns(s){ document.querySelectorAll('.status-tab').forEach(el=>{ if(window.isSharedMode) el.style.pointerEvents = 'none'; if(el.dataset.val === s) el.classList.add('active'); else el.classList.remove('active'); }); }
@@ -687,68 +1026,47 @@
             if(window.isSharedMode)return;
             const b=myBooks.find(x=>x.id===currentEditingId);
             if(b){
-                b.memo_concepts=document.getElementById('memoConcepts').value;
+                b.memo_concepts=document.getElementById('memoConcepts').value; 
                 b.memo_summary=document.getElementById('memoSummary').value;
                 b.memo_review=document.getElementById('memoReview').value;
                 b.page_current = parseInt(document.getElementById('current-page').value) || 0;
                 b.page_total = parseInt(document.getElementById('total-page').value) || 0;
-                save();applyView();
+                save();
+                if(currentView === 'grid' || currentView === 'kanban' || currentView === 'tag') applyView();
             }
         }
         
         function deleteBook(){if(window.isSharedMode)return;if(confirm('削除しますか？')){myBooks=myBooks.filter(x=>x.id!==currentEditingId);save();applyView();closeModal();}}
         function getImg(book){ if(book.customImage) return book.customImage; return book.image ? book.image.replace('http://','https://').replace('&edge=curl','').replace('zoom=1','zoom=2') : 'https://via.placeholder.com/150'; }
         
-        function promptImageURL() { 
-            const url = prompt("画像のURLを入力してください:"); 
-            if(url) { 
-                if(!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:image')) {
-                    alert("セキュリティのため、http/httpsで始まるURLのみ許可されています。");
-                    return;
-                }
-                const b = myBooks.find(x=>x.id===currentEditingId); 
-                if(b) { b.customImage = url; save(); openModal(currentEditingId); applyView(); } 
-            } 
-            closeAllPopovers(); 
-        }
-
-        function handleImageUpload(input) { if (input.files && input.files[0]) { const file = input.files[0]; const reader = new FileReader(); reader.onload = function(e) { try { const b = myBooks.find(x=>x.id===currentEditingId); if(b) { b.customImage = e.target.result; save(); openModal(currentEditingId); applyView(); } } catch(err) { alert("画像の容量が大きすぎて保存できませんでした。\n(ブラウザの制限: 約5MBまで)"); } }; reader.readAsDataURL(file); } closeAllPopovers(); }
+        function promptImageURL() { const url = prompt("画像のURLを入力してください:"); if(url) { if(!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:image')) { alert("セキュリティのため、http/httpsで始まるURLのみ許可されています。"); return; } const b = myBooks.find(x=>x.id===currentEditingId); if(b) { b.customImage = url; save(); openModal(currentEditingId); applyView(); } } closeAllPopovers(); }
+        function handleImageUpload(input) { if (input.files && input.files[0]) { const file = input.files[0]; if(file.size > 2097152) { alert("画像サイズが大きすぎます (最大2MB)"); return; } const reader = new FileReader(); reader.onload = function(e) { try { const b = myBooks.find(x=>x.id===currentEditingId); if(b) { b.customImage = e.target.result; save(); openModal(currentEditingId); applyView(); } } catch(err) { alert("画像の容量が大きすぎて保存できませんでした。"); } }; reader.readAsDataURL(file); } closeAllPopovers(); }
         function resetImage() { if(confirm("カスタム画像を削除して元の画像に戻しますか？")) { const b = myBooks.find(x=>x.id===currentEditingId); if(b) { delete b.customImage; save(); openModal(currentEditingId); applyView(); } } closeAllPopovers(); }
-        function save(){ if(window.isSharedMode) return; lastUpdated = Date.now(); try { localStorage.setItem('myBooksV5',JSON.stringify(myBooks)); localStorage.setItem('myBooksLastUpdated', lastUpdated.toString()); showToast(); } catch(e) { alert("データ容量がいっぱいです。画像を減らすか、テキストを整理してください。"); } }
+        
+        function save(){ if(window.isSharedMode) return; lastUpdated = Date.now(); saveSecure('myBooksV5', myBooks); localStorage.setItem('myBooksLastUpdated', lastUpdated.toString()); showToast(); }
+        
         function toggleTheme(){const d=document.documentElement.classList.toggle('dark');localStorage.setItem('theme',d?'dark':'light'); updateStats();}
         function toggleSettings(){document.getElementById('settingsMenu').classList.toggle('translate-x-full');}
-        function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({version:"v37",timestamp:lastUpdated,data:myBooks})],{type:"application/json"}));a.download=`booklog_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();}
+        function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({version:"v50",timestamp:lastUpdated,data:myBooks})],{type:"application/json"}));a.download=`booklog_ultraglass_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();}
         
         function importData(i){
             const r=new FileReader();
             r.onload=e=>{
                 try{
+                    if (e.target.result.length > 10000000) { throw new Error("File too large"); }
                     const j=secureJSONParse(e.target.result);
                     let n=[];let t=0;
-                    
-                    if(Array.isArray(j)){
-                        n=j;
-                    }else if(j.data){
-                        n=j.data; t=j.timestamp||0;
-                    }
-                    
+                    if(Array.isArray(j)){ n=j; }else if(j.data){ n=j.data; t=j.timestamp||0; }
                     const validBooks = n.filter(validateBookSchema);
                     if(validBooks.length === 0 && n.length > 0) throw new Error("No valid book data found.");
-                    if(validBooks.length < n.length) alert("警告: 一部の不正なデータはスキップされました。");
-
+                    if(validBooks.length < n.length) alert("警告: 一部の不正または巨大なデータはスキップされました。");
                     if(t<lastUpdated&&lastUpdated>0){if(!confirm("注意: 現在のデータより古いバックアップです。上書きしますか？"))return;}
-                    
-                    myBooks=validBooks;
-                    save();applyView();alert('復元完了');toggleSettings();
-                }catch(e){
-                    console.error(e);
-                    alert("ファイル形式エラー、またはデータが改ざんされています。");
-                }
+                    myBooks=validBooks; save();applyView();alert('復元完了');toggleSettings();
+                }catch(e){ console.error(e); alert("ファイル形式エラー、またはデータが大きすぎます。"); }
             };
             r.readAsText(i.files[0]);
         }
         
-        // === Privacy: Share Logic Update ===
         async function loadSharedBooks(queryStr) { 
             window.isSharedMode = true; 
             document.getElementById('sharedBanner').classList.remove('hidden'); 
@@ -757,27 +1075,17 @@
             document.getElementById('loadingOverlay').classList.add('active'); 
             myBooks = []; 
             const items = queryStr.split(','); 
-            // Security: Limit batch processing
             const BATCH_SIZE = 5; 
             for (let i = 0; i < items.length; i += BATCH_SIZE) { 
                 const batch = items.slice(i, i + BATCH_SIZE); 
                 await Promise.all(batch.map(async (item) => { 
                     const [id, status, rank] = item.split('~'); 
-                    if(!id) return; 
+                    if(!id || !/^[a-zA-Z0-9_\-]+$/.test(id)) return;
                     try { 
                         const r = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}`); 
                         const d = await r.json(); 
                         if(d.id) { 
-                            myBooks.push({ 
-                                id: d.id, 
-                                title: d.volumeInfo.title, 
-                                author: d.volumeInfo.authors?.join(', ') || '', 
-                                image: d.volumeInfo.imageLinks?.thumbnail || '', 
-                                status: status || 'unread', 
-                                rank: rank || '', 
-                                addedAt: Date.now() 
-                                // Privacy: Memos are NOT loaded here
-                            }); 
+                            myBooks.push({ id: d.id, title: d.volumeInfo.title, author: d.volumeInfo.authors?.join(', ') || '', image: d.volumeInfo.imageLinks?.thumbnail || '', status: status || 'unread', rank: rank || '', addedAt: Date.now(), tags: [] }); 
                         } 
                     } catch(e) { console.error(e); } 
                 })); 
@@ -786,18 +1094,6 @@
             document.getElementById('loadingOverlay').classList.remove('active'); 
             applyView(); 
             showToast("共有ライブラリを読み込みました"); 
-        }
-
-        // === Privacy: Limit Share & Exclude Memos ===
-        function generateShareLink() { 
-            // Constraint: Limit to 20 books to prevent URL overflow and abuse
-            if(myBooks.length > 20) {
-                alert("共有リンクで送れるのは最新の20冊までです。\n(URLの長さ制限およびパフォーマンス保護のため)");
-            }
-            // Privacy: Construct string manually to ensure NO memos are included
-            const dataStr = myBooks.slice(0, 20).map(b => `${b.id}~${b.status||'unread'}~${b.rank||''}`).join(','); 
-            const url = `${window.location.origin}${window.location.pathname}?share=${dataStr}`; 
-            navigator.clipboard.writeText(url).then(() => alert('リンクをコピーしました\n※プライバシー保護のため、メモや画像は共有されません。')); 
         }
     </script>
 </body>
