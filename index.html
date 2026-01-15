@@ -535,18 +535,18 @@
         </div>
     </div>
     
-    <div id="guideModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-        <div class="bg-white dark:bg-darkCard w-full max-w-5xl rounded-smooth shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="relative p-2 flex-1 flex items-center justify-center bg-gray-100 dark:bg-black">
-                <img src="./Gemini_Generated_Image_qtqq4iqtqq4iqtqq.png" class="max-w-full max-h-full object-contain rounded-md shadow-lg" alt="BookLog Guide">
-                <button onclick="closeGuide()" class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition backdrop-blur-md">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="guideModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 px-4 md:px-0">
+        <div class="bg-white dark:bg-darkCard w-full max-w-3xl rounded-smooth shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="relative p-4 md:p-6 flex-1 flex items-center justify-center bg-gray-100 dark:bg-black overflow-hidden">
+                <img src="./Gemini_Generated_Image_qtqq4iqtqq4iqtqq.png" class="max-w-full max-h-full object-contain rounded-md shadow-sm" alt="BookLog Guide">
+                <button onclick="closeGuide()" class="absolute top-2 right-2 md:top-4 md:right-4 bg-black/50 hover:bg-black/80 text-white rounded-full p-1.5 md:p-2 transition backdrop-blur-md z-10">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="p-6 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800 text-center">
-                <h3 class="text-lg font-bold mb-2 dark:text-white">ようこそ BOOKLOG V51 へ</h3>
-                <p class="text-xs text-gray-500 mb-4">PC・スマホ両対応。あなたの読書体験を美しく記録・管理します。</p>
-                <button onclick="closeGuide()" class="px-8 py-3 bg-accent text-white font-bold rounded-full hover:shadow-glow transition transform hover:scale-105">始める</button>
+            <div class="p-4 md:p-6 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800 text-center shrink-0">
+                <h3 class="text-base md:text-lg font-bold mb-2 dark:text-white">ようこそ BOOKLOG V51 へ</h3>
+                <p class="text-xs text-gray-500 mb-4 leading-relaxed">PC・スマホ両対応。<br class="md:hidden">あなたの読書体験を美しく記録・管理します。</p>
+                <button onclick="closeGuide()" class="px-6 py-2.5 md:px-8 md:py-3 bg-accent text-white font-bold text-xs md:text-sm rounded-full hover:shadow-glow transition transform hover:scale-105 active:scale-95">始める</button>
             </div>
         </div>
     </div>
