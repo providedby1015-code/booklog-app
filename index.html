@@ -7,11 +7,11 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="BookLog V51">
+    <meta name="apple-mobile-web-app-title" content="BookLog">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)">
 
-    <title>BookLog V51 Silent-Guardian Edition</title>
+    <title>BookLog</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -544,14 +544,14 @@
                 </button>
             </div>
             <div class="p-4 md:p-6 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800 text-center shrink-0">
-                <h3 class="text-base md:text-lg font-bold mb-2 dark:text-white">ようこそ BOOKLOG V51 へ</h3>
+                <h3 class="text-base md:text-lg font-bold mb-2 dark:text-white">ようこそ BOOKLOG へ</h3>
                 <p class="text-xs text-gray-500 mb-4 leading-relaxed">PC・スマホ両対応。<br class="md:hidden">あなたの読書体験を美しく記録・管理します。</p>
                 <button onclick="closeGuide()" class="px-6 py-2.5 md:px-8 md:py-3 bg-accent text-dark font-bold text-xs md:text-sm rounded-full hover:shadow-glow transition transform hover:scale-105 active:scale-95">記録開始</button>
             </div>
         </div>
     </div>
 
-    <div id="settingsMenu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col overflow-y-auto"><div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-black"><h3 class="font-bold dark:text-white tracking-widest text-xs uppercase">設定 / 統計</h3><button onclick="toggleSettings()" class="text-xl haptic-tap dark:text-white">&times;</button></div><div class="p-6 space-y-8 flex-1"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-4">読書データ</p><div class="donut-chart mb-4" id="donutChart"><div class="donut-inner"><span id="stat-total" class="text-2xl font-extrabold dark:text-white">0</span></div></div><div class="space-y-3 text-xs"><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-gray-300 mr-2 rounded-full"></span>読みたい</div><span id="stat-unread" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>読書途中</div><span id="stat-reading" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-green-500 mr-2 rounded-full"></span>読書完了</div><span id="stat-completed" class="font-bold">0</span></div></div></div><div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800"><p class="text-[10px] font-bold text-gray-400 uppercase">データ管理</p><button onclick="generateShareLink()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">共有 / リンクコピー (最大20冊)</button><button onclick="exportData()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">バックアップ保存</button><label class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold cursor-pointer block dark:text-white">データ復元<input type="file" class="hidden" onchange="importData(this)"></label></div><div class="text-[10px] text-gray-400">Powered by Google Books API</div></div><div class="p-4 text-center text-[10px] text-gray-400 bg-gray-50 dark:bg-black">BOOKLOG V51 Silent-Guardian</div></div>
+    <div id="settingsMenu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col overflow-y-auto"><div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-black"><h3 class="font-bold dark:text-white tracking-widest text-xs uppercase">設定 / 統計</h3><button onclick="toggleSettings()" class="text-xl haptic-tap dark:text-white">&times;</button></div><div class="p-6 space-y-8 flex-1"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-4">読書データ</p><div class="donut-chart mb-4" id="donutChart"><div class="donut-inner"><span id="stat-total" class="text-2xl font-extrabold dark:text-white">0</span></div></div><div class="space-y-3 text-xs"><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-gray-300 mr-2 rounded-full"></span>読みたい</div><span id="stat-unread" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-accent mr-2 rounded-full"></span>読書途中</div><span id="stat-reading" class="font-bold">0</span></div><div class="flex justify-between items-center"><div class="flex items-center"><span class="w-2 h-2 bg-green-500 mr-2 rounded-full"></span>読書完了</div><span id="stat-completed" class="font-bold">0</span></div></div></div><div class="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800"><p class="text-[10px] font-bold text-gray-400 uppercase">データ管理</p><button onclick="generateShareLink()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">共有 / リンクコピー (最大20冊)</button><button onclick="exportData()" class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold dark:text-white">バックアップ保存</button><label class="w-full liquid-glass rounded-smooth p-3 text-left text-xs font-bold cursor-pointer block dark:text-white">データ復元<input type="file" class="hidden" onchange="importData(this)"></label></div><div class="text-[10px] text-gray-400">Powered by Google Books API</div></div><div class="p-4 text-center text-[10px] text-gray-400 bg-gray-50 dark:bg-black">BOOKLOG</div></div>
 
     <script>
         // === Security: Sanitization (XSS) ===
@@ -1143,3 +1143,4 @@
     </script>
 </body>
 </html>
+
