@@ -1503,6 +1503,42 @@ html.theme-transitioning::view-transition-old(root) {
     0% { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(8px); }
     100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
+
+/* === 1000% Refined Grid Scale System === */
+/* ボタンのアクティブ状態（iOSのすりガラス上の白いピルを再現） */
+.scale-btn.is-active {
+    background: #ffffff;
+    color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+.dark .scale-btn.is-active {
+    background: #3a3a3c;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* スムーズな変形を助けるためのプロパティ */
+.book-grid { contain: layout; }
+
+/* --- 段階的なグリッド制御（メディアクエリで画面サイズごとに完璧な比率を維持） --- */
+/* [M] scale-medium (デフォルト) */
+.book-grid.scale-medium { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 1rem; }
+@media (min-width: 640px) { .book-grid.scale-medium { grid-template-columns: repeat(4, 1fr); gap: 2rem 1.5rem; } }
+@media (min-width: 1024px) { .book-grid.scale-medium { grid-template-columns: repeat(6, 1fr); gap: 3rem 2rem; } }
+@media (min-width: 1280px) { .book-grid.scale-medium { grid-template-columns: repeat(8, 1fr); } }
+
+/* [S] scale-small (高密度モード: 一覧性を極める) */
+.book-grid.scale-small { grid-template-columns: repeat(3, 1fr); gap: 1rem 0.5rem; }
+@media (min-width: 640px) { .book-grid.scale-small { grid-template-columns: repeat(5, 1fr); gap: 1.5rem 1rem; } }
+@media (min-width: 1024px) { .book-grid.scale-small { grid-template-columns: repeat(8, 1fr); gap: 2rem 1.5rem; } }
+@media (min-width: 1280px) { .book-grid.scale-small { grid-template-columns: repeat(10, 1fr); } }
+
+/* [L] scale-large (没入モード: 表紙の美しさを堪能する) */
+.book-grid.scale-large { grid-template-columns: repeat(1, 1fr); gap: 2rem 1rem; padding-left: 1.5rem; padding-right: 1.5rem; }
+@media (min-width: 640px) { .book-grid.scale-large { grid-template-columns: repeat(2, 1fr); gap: 3rem 2rem; } }
+@media (min-width: 1024px) { .book-grid.scale-large { grid-template-columns: repeat(3, 1fr); gap: 4rem 3rem; } }
+@media (min-width: 1280px) { .book-grid.scale-large { grid-template-columns: repeat(4, 1fr); } }
+
 </style>
 </head>
 <body class="bg-white text-gray-900 dark:bg-darkBg dark:text-gray-200 min-h-screen flex flex-col font-sans text-[13px] transition-colors duration-0" onclick="closePopovers(event)">
@@ -1582,7 +1618,19 @@ html.theme-transitioning::view-transition-old(root) {
     </header>
 
     <main class="flex-grow w-full px-4 md:px-6 py-6 overflow-x-hidden relative min-h-[500px]">
-        <div id="view-content-grid" class="view-content w-full"><div id="bookshelf-grid" class="book-grid"></div></div>
+        <div id="view-content-grid" class="view-content w-full">
+    <div class="flex justify-between items-end mb-4 px-1">
+        <h2 class="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 tracking-widest uppercase ml-1"></h2>
+        
+        <div class="flex items-center bg-gray-100/80 dark:bg-zinc-800/80 backdrop-blur-xl rounded-full p-0.5 border border-black/5 dark:border-white/5 shadow-[inset_0_1px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_4px_rgba(0,0,0,0.4)]">
+            <button onclick="setGridScale('large'); triggerHaptic();" id="scale-btn-large" class="scale-btn text-[9px] font-extrabold px-3.5 py-1.5 rounded-full text-gray-400 dark:text-gray-500 transition-all duration-300 tracking-wider haptic-tap">L</button>
+            <button onclick="setGridScale('medium'); triggerHaptic();" id="scale-btn-medium" class="scale-btn text-[9px] font-extrabold px-3.5 py-1.5 rounded-full text-gray-400 dark:text-gray-500 transition-all duration-300 tracking-wider is-active haptic-tap">M</button>
+            <button onclick="setGridScale('small'); triggerHaptic();" id="scale-btn-small" class="scale-btn text-[9px] font-extrabold px-3.5 py-1.5 rounded-full text-gray-400 dark:text-gray-500 transition-all duration-300 tracking-wider haptic-tap">S</button>
+        </div>
+    </div>
+    
+    <div id="bookshelf-grid" class="book-grid scale-medium"></div>
+</div>
         
         <div id="view-content-tag" class="view-content w-full hidden">
             <div id="bookshelf-tag" class="max-w-7xl mx-auto pb-4"></div>
@@ -3526,6 +3574,2720 @@ html.theme-transitioning::view-transition-old(root) {
     
     // 起動時にすでに描画されているものがあれば再発火
     if(typeof window.applyView === 'function') window.applyView();
+})();
+
+// === 1000% Refined Grid Scale Logic ===
+function setGridScale(scale) {
+    const updateDOM = () => {
+        const grid = document.getElementById('bookshelf-grid');
+        if(grid) {
+            // ベースのクラスを残しつつ、目的のスケールクラスを付与
+            grid.className = `book-grid scale-${scale}`;
+        }
+        
+        // UI（ボタン）のアクティブ状態を更新
+        document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('is-active'));
+        const activeBtn = document.getElementById(`scale-btn-${scale}`);
+        if(activeBtn) activeBtn.classList.add('is-active');
+        
+        // 設定を保存
+        localStorage.setItem('booklog_grid_scale', scale);
+    };
+
+    // View Transitions API を使って、サイズ変更時にカードが「ヌルッ」と移動するエフェクトをかける
+    if (document.startViewTransition) {
+        document.startViewTransition(() => {
+            updateDOM();
+        });
+    } else {
+        updateDOM();
+    }
+}
+
+// アプリ起動時に、保存されたサイズを復元
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const savedScale = localStorage.getItem('booklog_grid_scale') || 'medium';
+        // 初回ロード時はアニメーションなしで即座に適用したいのでDOMを直接叩く
+        const grid = document.getElementById('bookshelf-grid');
+        if(grid) grid.className = `book-grid scale-${savedScale}`;
+        
+        document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('is-active'));
+        const activeBtn = document.getElementById(`scale-btn-${savedScale}`);
+        if(activeBtn) activeBtn.classList.add('is-active');
+    }, 50); 
+});
+// === 1000% Premium Grid Rank Jewel Logic & UI Injection ===
+(function initPremiumGridRank() {
+    // 1. 既存のCSSを上書きし、極上のガラス質と光沢を与えるスタイルを動的に注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* ベースとなる宝石のようなガラスの質感 */
+        .rank-jewel {
+            position: absolute;
+            top: 8px !important;
+            right: 8px !important;
+            padding: 3px 10px !important;
+            border-radius: 8px !important;
+            font-size: 0.75rem !important;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            z-index: 20;
+            color: white !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease !important;
+            /* 光の反射を表現するインナーシャドウ */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.6) !important;
+        }
+
+        /* ホバー時にカードと一緒に少し浮き上がる連動エフェクト */
+        .book-card-container:hover .rank-jewel {
+            transform: scale(1.08) translateY(-2px) !important;
+        }
+
+        /* ランクごとの極上グラデーションとオーラ（Glow） */
+        .rank-S {
+            background: linear-gradient(135deg, rgba(250, 204, 21, 0.9), rgba(245, 158, 11, 0.9)) !important;
+            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5), inset 0 1px 1px rgba(255,255,255,0.8) !important;
+            border: 1px solid rgba(255,255,255,0.5) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+        }
+        .rank-A {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.9), rgba(100, 116, 139, 0.9)) !important;
+            box-shadow: 0 4px 15px rgba(148, 163, 184, 0.4), inset 0 1px 1px rgba(255,255,255,0.6) !important;
+            border: 1px solid rgba(255,255,255,0.4) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+        }
+        .rank-B {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.9), rgba(180, 83, 9, 0.9)) !important;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4), inset 0 1px 1px rgba(255,255,255,0.5) !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+        }
+        .rank-C {
+            background: linear-gradient(135deg, rgba(113, 113, 122, 0.9), rgba(82, 82, 91, 0.9)) !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+        }
+
+        /* ダークモード時の微調整（発光感を残しつつ背景に馴染ませる） */
+        .dark .rank-S { background: linear-gradient(135deg, rgba(234, 179, 8, 0.85), rgba(217, 119, 6, 0.85)) !important; }
+        .dark .rank-A { background: linear-gradient(135deg, rgba(148, 163, 184, 0.85), rgba(71, 85, 105, 0.85)) !important; }
+        .dark .rank-B { background: linear-gradient(135deg, rgba(217, 119, 6, 0.85), rgba(153, 27, 27, 0.85)) !important; }
+        .dark .rank-C { background: linear-gradient(135deg, rgba(113, 113, 122, 0.85), rgba(63, 63, 70, 0.85)) !important; }
+    `;
+    document.head.appendChild(style);
+
+    // 2. 既存の createBookCard を安全にインターセプト（上書き）して、UIをリッチにする
+    if (typeof window.createBookCard === 'function') {
+        const originalCreateBookCard = window.createBookCard;
+        
+        window.createBookCard = function(b) {
+            // 既存のロジックでDOMを生成させる（破壊的変更を回避）
+            const cardDom = originalCreateBookCard(b);
+            
+            // 生成されたDOMの中からランクバッジを特定
+            const rankJewel = cardDom.querySelector('.rank-jewel');
+            if (rankJewel && b.rank) {
+                // Sランクなら小さな星アイコンを追加、それ以外は文字のみ（Apple風のミニマルさを維持）
+                let iconSvg = '';
+                if (b.rank === 'S') {
+                    iconSvg = '<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>';
+                }
+                
+                rankJewel.innerHTML = iconSvg + b.rank;
+            }
+            
+            return cardDom;
+        };
+
+        // もしすでにGridビューが開かれていれば、自動的に再描画して反映
+        if (typeof window.applyView === 'function' && window.currentView === 'grid') {
+            window.applyView();
+        }
+    }
+})();
+
+// === 1000% Mobile UI Perfect Layout Patch ===
+(function initPerfectMobileLayout() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* === スマホ向け極上レイアウト最適化 === */
+        @media (max-width: 768px) {
+            /* 1. 下段コントロール群（本棚検索・フィルタ・ソート）の折り返しと隙間調整 */
+            .z-30.w-full.justify-end {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            /* Tailwindの space-x-2 による不要な余白をリセット */
+            .z-30.w-full.justify-end > * {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            /* 2. 本棚内検索を1行まるごと使ってゆったりと配置 */
+            .z-30.w-full.justify-end > .relative.group {
+                flex: 1 1 100% !important;
+                width: 100% !important;
+            }
+            #localSearchInput {
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 13px !important;
+                padding-right: 32px !important; /* バッジが消えるため余白を減らす */
+            }
+            /* スマホフォーカス時の画面外への横伸びを無効化 */
+            #localSearchInput:focus {
+                width: 100% !important;
+            }
+
+            /* 3. スマホ（タッチデバイス）では不要なショートカットバッジを消去 */
+            .search-shortcut-badge {
+                display: none !important;
+            }
+
+            /* 4. FilterとSortボタンを等間隔で美しく2列に並べる */
+            .z-30.w-full.justify-end > .popover-container {
+                flex: 1 1 calc(50% - 4px) !important;
+                width: calc(50% - 4px) !important;
+            }
+            .popover-trigger {
+                width: 100% !important;
+                min-width: 0 !important; /* 元の 110px 制限を解除 */
+                padding: 6px 12px !important;
+            }
+            
+            /* ボタン内のテキストのはみ出し防止とサイズ最適化 */
+            .popover-trigger span {
+                white-space: nowrap !important;
+            }
+            #label-filter, #label-sort {
+                font-size: 11px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                margin-left: auto !important;
+                margin-right: 4px !important;
+            }
+            .popover-trigger .text-\\[10px\\] {
+                font-size: 9px !important; /* FILTER/SORTのラベルを少し小さく */
+            }
+
+            /* WEB検索バーのフォントサイズ最適化 */
+            #searchInput {
+                font-size: 13px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 10000% Mobile UI Perfect Layout Patch ===
+(function initPerfectMobileLayout() {
+    // 1. 本棚内検索の親要素にスマホ用非表示クラスを付与（JSによる安全なDOM操作）
+    const localSearchInput = document.getElementById('localSearchInput');
+    if (localSearchInput && localSearchInput.parentElement) {
+        localSearchInput.parentElement.classList.add('mobile-hide-search');
+    }
+
+    // 2. スマホ版（画面幅768px以下）専用のCSSを動的に注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* --- 不要なUIの非表示 --- */
+            .mobile-hide-search {
+                display: none !important;
+            }
+            #view-content-grid > div:first-child > div.flex.items-center {
+                display: none !important; /* SMLサイズ選択ボタンを非表示 */
+            }
+
+            /* --- グリッドの最適化 --- */
+            .book-grid {
+                /* スマホでは強制的にSサイズ（3列）に固定 */
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 1rem 0.5rem !important;
+            }
+
+            /* --- コントロールバー（FILTER / SORT）のレイアウト --- */
+            .z-30.w-full.justify-end {
+                justify-content: space-between !important;
+                width: 100% !important;
+                gap: 8px !important;
+            }
+            /* Tailwindの余白をリセット */
+            .z-30.w-full.justify-end > * {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            /* 2つのボタンを50%ずつ均等に配置 */
+            .z-30.w-full.justify-end > .popover-container {
+                flex: 1 1 50% !important;
+                width: 100% !important;
+            }
+            .popover-trigger {
+                width: 100% !important;
+                min-width: 0 !important;
+                padding: 8px 12px !important;
+            }
+            /* ラベル文字列のはみ出し防止 */
+            #label-filter, #label-sort {
+                font-size: 11px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                margin-left: auto !important;
+                margin-right: 4px !important;
+            }
+            .popover-trigger .text-\\[10px\\] {
+                font-size: 9px !important;
+            }
+
+            /* --- ポップオーバー（プルダウンメニュー）の最適化 --- */
+            /* 画面外への見切れを防止するため、Filterは左へ、Sortは右へ展開 */
+            .popover-container:first-of-type .absolute-popover {
+                left: 0 !important;
+                right: auto !important;
+            }
+            .popover-container:last-of-type .absolute-popover {
+                right: 0 !important;
+                left: auto !important;
+            }
+            
+            #popover-filter, #popover-sort {
+                width: calc(100vw - 32px) !important; /* 画面幅いっぱい（左右16px余白） */
+                max-width: 240px !important; 
+                padding: 6px !important;
+            }
+            
+            /* メニュー内の文字サイズと余白を縮小し、圧迫感を排除 */
+            .sort-pro-item, .filter-pro-item {
+                font-size: 0.7rem !important;
+                padding: 8px 10px !important;
+                margin-bottom: 2px !important;
+            }
+            .sort-section-title {
+                font-size: 0.6rem !important;
+                margin: 8px 8px 4px 8px !important;
+            }
+            .filter-label-group svg, .sort-label-group svg {
+                width: 14px !important;
+                height: 14px !important;
+                stroke-width: 2.5 !important;
+            }
+            .filter-badge {
+                font-size: 0.6rem !important;
+                padding: 2px 6px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 10000% Mobile Modal UI Fix & Compact Layout ===
+(function initPerfectMobileModal() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* 1. スクロールバグの完全解消: モーダル全体をスクロール可能にする */
+            #modalCard {
+                display: block !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                height: 100% !important;
+            }
+            
+            /* 内部のスクロールロックを解除し、高さをコンテンツに合わせる */
+            #modalCard > div:first-child,
+            #modalCard > div:last-child {
+                overflow-y: visible !important;
+                height: auto !important;
+            }
+
+            /* 2. 上部エリアの極小化とグリッド再配置 (書影とタイトルを横並びにして縦幅を節約) */
+            #modalCard > div:first-child {
+                display: grid !important;
+                grid-template-columns: 70px 1fr !important;
+                grid-template-rows: auto auto auto !important;
+                gap: 4px 16px !important;
+                padding: 16px 16px 12px 16px !important;
+                border-right: none !important;
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+            }
+            .dark #modalCard > div:first-child {
+                border-bottom-color: rgba(255,255,255,0.05) !important;
+            }
+
+            /* 書影 (左側) */
+            #modalCard > div:first-child > div.relative.group {
+                grid-column: 1 !important;
+                grid-row: 1 / span 2 !important;
+                width: 70px !important;
+                margin-bottom: 0 !important;
+            }
+
+            /* タイトル (右側 上段) */
+            #modalTitle {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                text-align: left !important;
+                font-size: 14px !important;
+                margin-bottom: 0 !important;
+                align-self: end !important;
+                line-height: 1.3 !important;
+            }
+
+            /* 著者 (右側 下段) */
+            #modalAuthor {
+                grid-column: 2 !important;
+                grid-row: 2 !important;
+                text-align: left !important;
+                font-size: 11px !important;
+                margin-bottom: 0 !important;
+                align-self: start !important;
+            }
+
+            /* コントロール群 (3行目 全幅) */
+            #modalCard > div:first-child > div.w-full.space-y-5 {
+                grid-column: 1 / span 2 !important;
+                grid-row: 3 !important;
+                margin-top: 12px !important;
+            }
+            
+            /* Tailwindの不要な隙間（space-y-5）を上書きして限界まで詰める */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div,
+            #modalCard > div:first-child > div.w-full.space-y-5 > button {
+                margin-top: 12px !important;
+            }
+
+            /* 3. Progress (Page) をスマホ版のみ非表示にする */
+            #modalCard > div:first-child > div.w-full > div:nth-last-child(2) {
+                display: none !important;
+            }
+
+            /* 4. Rank, Status, Tag のUIをさらに小さく・薄く最適化 */
+            #modalCard > div:first-child label {
+                font-size: 9px !important;
+                margin-bottom: 4px !important;
+            }
+            
+            /* Perfect RankUIの縮小 */
+            .magic-rank-track {
+                height: 32px !important;
+                padding: 2px !important;
+                margin-top: 2px !important;
+            }
+            .magic-rank-item { font-size: 11px !important; }
+            .magic-rank-item[data-rank=""] { font-size: 9px !important; }
+            
+            /* Statusの縮小 */
+            .status-segment {
+                height: 32px !important;
+                padding: 2px !important;
+            }
+            .status-tab { font-size: 10px !important; border-radius: 6px !important; }
+            
+            /* Tagの縮小 */
+            .tag-input-container {
+                min-height: 36px !important;
+                padding: 6px 8px !important;
+            }
+            .tag-chip { padding: 2px 8px !important; font-size: 10px !important; }
+            .tag-input { font-size: 11px !important; }
+            
+            /* 削除ボタンの縮小 */
+            #modalDeleteBtn {
+                padding: 8px !important;
+                font-size: 10px !important;
+            }
+
+            /* 5. メインの書くエリアの余白最適化（スクロールしやすく） */
+            #modalCard > div:last-child {
+                padding: 16px 16px 60px 16px !important;
+            }
+            .rich-editor-wrapper { margin-bottom: 24px !important; }
+            .rich-content {
+                min-height: 120px !important;
+                padding: 12px !important;
+                font-size: 13px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 10000% Mobile UI/UX Overhaul Patch (Filter & Sort Optimization) ===
+(function initMobileUIOverhaul() {
+    // 1. 既存のスタイルを上書きするためのCSSを動的に注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* --- 1. コントロールバー全体を1行に収めるための再構築 --- */
+            header .w-full.border-t {
+                flex-direction: row !important; /* スマホでも横並びに強制 */
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                padding: 10px 16px !important;
+                gap: 12px !important;
+            }
+
+            /* WEB検索バーをメインに、左側のスペースを占有させる */
+            header .w-full.border-t > .relative.w-full.md\\:w-1\\/3 {
+                width: auto !important;
+                flex: 1 1 auto !important;
+                margin-bottom: 0 !important;
+            }
+            #searchInput {
+                height: 38px !important;
+                font-size: 13px !important;
+                border-radius: 999px !important; /* より丸みを持たせる */
+            }
+
+            /* Powered by...のテキストを非表示（スマホではノイズになるため） */
+            header .w-full.border-t .text-\\[9px\\] {
+                display: none !important;
+            }
+
+            /* --- 2. Filter & Sort コンテナの再配置 --- */
+            .z-30.w-full.justify-end {
+                width: auto !important;
+                flex: 0 0 auto !important;
+                display: flex !important;
+                gap: 8px !important;
+                justify-content: flex-end !important;
+            }
+
+            /* ポップオーバーコンテナの幅制限を解除 */
+            .z-30.w-full.justify-end > .popover-container {
+                flex: none !important;
+                width: auto !important;
+            }
+
+            /* --- 3. ボタンをアイコン化して究極にコンパクトにする --- */
+            .popover-trigger {
+                width: 38px !important;
+                height: 38px !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                border-radius: 50% !important; /* 完全な円形に */
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: rgba(118, 118, 128, 0.08) !important;
+                box-shadow: none !important;
+                position: relative !important;
+            }
+            .dark .popover-trigger {
+                background: rgba(118, 118, 128, 0.24) !important;
+            }
+
+            /* 中の文字をすべて非表示 */
+            .popover-trigger span {
+                display: none !important;
+            }
+
+            /* Filter用のアイコン(漏斗)をCSSマスクで注入 */
+            #trigger-filter::after {
+                content: '';
+                display: block;
+                width: 16px;
+                height: 16px;
+                background-color: currentColor;
+                -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'%3E%3C/polygon%3E%3C/svg%3E") no-repeat center;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'%3E%3C/polygon%3E%3C/svg%3E") no-repeat center;
+                opacity: 0.7;
+            }
+
+            /* Sort用のアイコン(上下矢印)をCSSマスクで注入 */
+            #trigger-sort::after {
+                content: '';
+                display: block;
+                width: 16px;
+                height: 16px;
+                background-color: currentColor;
+                -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'%3E%3C/line%3E%3Cpolyline points='19 12 12 19 5 12'%3E%3C/polyline%3E%3C/svg%3E") no-repeat center;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'%3E%3C/line%3E%3Cpolyline points='19 12 12 19 5 12'%3E%3C/polyline%3E%3C/svg%3E") no-repeat center;
+                opacity: 0.7;
+            }
+
+            /* メニュー開閉時のアクティブ状態（アイコンの色をアクセントカラーに） */
+            .popover-trigger.active::after,
+            .popover-trigger:active::after {
+                background-color: var(--accent-color) !important;
+                opacity: 1 !important;
+            }
+
+            /* --- 4. メニュー（ポップオーバー）をiOS風に洗練 --- */
+            #popover-filter, #popover-sort {
+                width: 220px !important;
+                max-width: none !important;
+                right: 0 !important;
+                left: auto !important; /* 画面右端に揃える */
+                top: calc(100% + 8px) !important;
+                border-radius: 14px !important;
+                padding: 8px !important;
+            }
+
+            /* メニュー内の項目をタイトで美しく */
+            .sort-pro-item, .filter-pro-item {
+                font-size: 0.75rem !important;
+                padding: 10px 12px !important;
+                border-radius: 8px !important;
+            }
+            .sort-section-title {
+                margin: 8px 10px 4px !important;
+                font-size: 0.65rem !important;
+            }
+
+            /* --- 5. フィルター適用中の通知ドット（UX向上） --- */
+            .filter-active-dot {
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                width: 10px;
+                height: 10px;
+                background-color: #ff3b30;
+                border-radius: 50%;
+                border: 2px solid #ffffff;
+                pointer-events: none;
+            }
+            .dark .filter-active-dot {
+                border-color: #000000;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. フィルター状態に応じて赤いドットを表示するロジックを追加
+    // 既存の関数を安全にフックして処理を差し込みます
+    const triggerFilterBtn = document.getElementById('trigger-filter');
+    
+    // 赤いドットのDOMを作成してFilterボタンに付与
+    const dot = document.createElement('div');
+    dot.className = 'filter-active-dot';
+    dot.style.display = 'none'; // 初期状態は非表示
+    if (triggerFilterBtn) {
+        triggerFilterBtn.appendChild(dot);
+    }
+
+    // `window.selectFilterPro` (または `selectFilter`) を上書きしてドットの表示制御を連携
+    const originalSelectFilter = window.selectFilterPro || window.selectFilter;
+    if (originalSelectFilter) {
+        // 新しい関数名として上書き（Proパッチが当たっている場合はselectFilterProが呼ばれる）
+        const targetFuncName = window.selectFilterPro ? 'selectFilterPro' : 'selectFilter';
+        
+        window[targetFuncName] = function(val) {
+            // 元の関数を実行してフィルタリングを処理させる
+            originalSelectFilter(val);
+            
+            // 'all' (すべて) 以外が選択されたら赤いドットを表示
+            if (val !== 'all') {
+                dot.style.display = 'block';
+            } else {
+                dot.style.display = 'none';
+            }
+        };
+    }
+    
+    // アプリ起動時に、保存されているフィルター状態を読み取ってドットを反映
+    setTimeout(() => {
+        if (window.currentState && window.currentState.filter !== 'all') {
+            dot.style.display = 'block';
+        }
+    }, 200);
+
+})();
+
+// === 10000% Ultra Compact Mobile Modal & Scroll Fix Patch ===
+(function initUltraCompactMobileModal() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* --- 1. 致命的なスクロールバグの完全解消 --- */
+            /* モーダル全体を「上から下へ素直にスクロール」できる構造に強制上書き */
+            #modalCard {
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                display: block !important; /* Flexを解除して自然なブロックフローに */
+                height: 90vh !important; /* 画面下部からスワイプアップで出るようなサイズ感 */
+                margin-top: 10vh !important;
+                border-radius: 20px 20px 0 0 !important; /* iOSのボトムシート風に角丸を下部に無くす */
+            }
+            #modalCard > div:first-child,
+            #modalCard > div:last-child {
+                overflow-y: visible !important;
+                height: auto !important;
+                flex: none !important;
+            }
+
+            /* --- 2. 閉じるボタンのiOS風美化 --- */
+            #modalCard > button.absolute.top-0.right-0 {
+                top: 16px !important;
+                right: 16px !important;
+                padding: 0 !important;
+                width: 28px !important;
+                height: 28px !important;
+                border-radius: 50% !important;
+                background: rgba(142, 142, 147, 0.15) !important;
+                font-size: 18px !important;
+                line-height: 1 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 50 !important;
+            }
+            .dark #modalCard > button.absolute.top-0.right-0 {
+                background: rgba(255, 255, 255, 0.15) !important;
+            }
+
+            /* --- 3. 書誌情報エリアの「超コンパクト・グリッド化」 --- */
+            /* 中央にデカデカとあった書影を左に寄せ、タイトルを右に配置して縦幅を節約 */
+            #modalCard > div:first-child {
+                display: grid !important;
+                grid-template-columns: 76px 1fr !important;
+                grid-template-rows: auto auto 1fr auto !important;
+                column-gap: 16px !important;
+                row-gap: 0 !important;
+                padding: 24px 20px 16px 20px !important;
+                border-right: none !important;
+                border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+                background: transparent !important;
+            }
+            .dark #modalCard > div:first-child {
+                border-bottom-color: rgba(255,255,255,0.05) !important;
+            }
+
+            /* 書影（左側） */
+            #modalCard > div:first-child > div.relative.group {
+                grid-column: 1 !important;
+                grid-row: 1 / 4 !important; /* タイトル・著者の横に配置 */
+                width: 76px !important;
+                margin-bottom: 0 !important;
+                border-radius: 6px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+            }
+            #imgEditBtn {
+                width: 24px !important;
+                height: 24px !important;
+                top: -6px !important;
+                right: -6px !important;
+            }
+            #imgEditBtn svg { width: 12px !important; height: 12px !important; }
+
+            /* タイトル（右側上段） */
+            #modalTitle {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                text-align: left !important;
+                font-size: 15px !important;
+                font-weight: 800 !important;
+                line-height: 1.35 !important;
+                margin-bottom: 4px !important;
+                padding-right: 30px !important; /* 閉じるボタンと被らないように */
+                display: -webkit-box !important;
+                -webkit-line-clamp: 3 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+            }
+
+            /* 著者（右側中段） */
+            #modalAuthor {
+                grid-column: 2 !important;
+                grid-row: 2 !important;
+                text-align: left !important;
+                font-size: 11px !important;
+                margin-bottom: 0 !important;
+                color: #8e8e93 !important;
+            }
+
+            /* --- 4. コントロール群の2カラム・タイト配置 --- */
+            /* 縦に並んでいたボタン類をギュッと2列に押し込む */
+            #modalCard > div:first-child > div.w-full.space-y-5 {
+                grid-column: 1 / 3 !important;
+                grid-row: 4 !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px 10px !important;
+                margin-top: 16px !important;
+            }
+            #modalCard > div:first-child > div.w-full.space-y-5 > * {
+                margin-top: 0 !important; /* Tailwindのspace-yをリセット */
+            }
+
+            /* ラベルの極小化 */
+            #modalCard > div:first-child label {
+                font-size: 9px !important;
+                letter-spacing: 0.05em !important;
+                margin-bottom: 4px !important;
+            }
+
+            /* Rank (左) & Status (右) */
+            #rank-ui-container { grid-column: 1 / 2 !important; }
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(2) { grid-column: 2 / 3 !important; }
+
+            .magic-rank-track, .status-segment {
+                height: 32px !important;
+                padding: 2px !important;
+                border-radius: 8px !important;
+            }
+            .magic-rank-item, .status-tab { font-size: 11px !important; border-radius: 6px !important; }
+            .magic-rank-item[data-rank=""] { font-size: 9px !important; }
+            
+            /* Rankメニューの見切れ防止（全幅展開） */
+            #rank-menu { width: calc(200% + 10px) !important; left: 0 !important; }
+
+            /* Tags (全幅) */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(3) {
+                grid-column: 1 / 3 !important;
+                padding-top: 0 !important;
+                border-top: none !important;
+            }
+            .tag-input-container {
+                min-height: 34px !important;
+                padding: 4px 8px !important;
+                border-radius: 8px !important;
+            }
+            .tag-chip { padding: 2px 8px !important; font-size: 10px !important; }
+            .tag-input { font-size: 11px !important; }
+
+            /* Progress (スマホ版は不要なので非表示) */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(4) {
+                display: none !important;
+            }
+
+            /* 削除ボタン (全幅・極小化して目立たなくする) */
+            #modalDeleteBtn {
+                grid-column: 1 / 3 !important;
+                padding: 8px !important;
+                font-size: 10px !important;
+                border-radius: 8px !important;
+                background: rgba(239, 68, 68, 0.08) !important;
+                margin-top: 4px !important;
+            }
+            .dark #modalDeleteBtn { background: rgba(239, 68, 68, 0.15) !important; }
+
+            /* --- 5. メインの書くエリアの最適化 --- */
+            #modalCard > div:last-child {
+                padding: 20px 20px 80px 20px !important; /* キーボード出現を考慮して下部にゆとり */
+            }
+            /* 各エディタブロックの隙間を圧縮 */
+            #modalCard > div:last-child > div.max-w-3xl {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            #modalCard > div:last-child > div.max-w-3xl.space-y-12 > div {
+                margin-top: 0 !important;
+            }
+            #modalCard > div:last-child label.text-xs {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
+            }
+            .rich-editor-wrapper { margin-bottom: 0 !important; }
+            .rich-content {
+                min-height: 100px !important;
+                padding: 12px !important;
+                font-size: 13px !important;
+                line-height: 1.6 !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 10000% Ultra-Compact Native Bottom Sheet UI Patch ===
+(function initNativeBottomSheetUI() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* --- 1. 致命的なスクロールバグの解消とボトムシート化 --- */
+            /* flexによる高さ計算の破綻を防ぎ、全体を自然にスクロールさせる */
+            #modalCard {
+                display: block !important; 
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                height: 92vh !important; /* 画面下からせり上がるボトムシートの高さ */
+                margin-top: 8vh !important;
+                border-radius: 24px 24px 0 0 !important; /* 上部のみ角丸 */
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.2) !important;
+            }
+            #modalCard > div:first-child,
+            #modalCard > div:last-child {
+                overflow-y: visible !important;
+                height: auto !important;
+                flex: none !important;
+            }
+
+            /* --- 2. 閉じるボタンのiOSネイティブ化 --- */
+            #modalCard > button.absolute.top-0.right-0 {
+                top: 14px !important;
+                right: 14px !important;
+                padding: 0 !important;
+                width: 30px !important;
+                height: 30px !important;
+                border-radius: 50% !important;
+                background: rgba(142, 142, 147, 0.15) !important;
+                font-size: 20px !important;
+                line-height: 1 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 50 !important;
+            }
+            .dark #modalCard > button.absolute.top-0.right-0 {
+                background: rgba(255, 255, 255, 0.15) !important;
+                color: #fff !important;
+            }
+
+            /* --- 3. 書誌情報エリアの「サムネイル横置きレイアウト」 --- */
+            /* 縦の無駄を徹底排除。書影を左、タイトルを右へ。 */
+            #modalCard > div:first-child {
+                display: grid !important;
+                grid-template-columns: 72px 1fr !important;
+                grid-template-rows: auto auto auto !important;
+                column-gap: 16px !important;
+                row-gap: 0 !important;
+                padding: 24px 20px 20px 20px !important;
+                border-right: none !important;
+                border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+                background: transparent !important;
+            }
+            .dark #modalCard > div:first-child {
+                border-bottom-color: rgba(255,255,255,0.06) !important;
+            }
+
+            /* 書影（左側） */
+            #modalCard > div:first-child > div.relative.group {
+                grid-column: 1 !important;
+                grid-row: 1 / 3 !important; /* タイトルと著者の横に結合 */
+                width: 72px !important;
+                margin-bottom: 0 !important;
+                border-radius: 6px !important;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+            }
+            
+            /* 画像編集ボタンの極小化 */
+            #imgEditBtn {
+                width: 22px !important; height: 22px !important;
+                top: -6px !important; right: -6px !important;
+            }
+            #imgEditBtn svg { width: 10px !important; height: 10px !important; }
+
+            /* タイトル（右側上段） */
+            #modalTitle {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                text-align: left !important;
+                font-size: 15px !important;
+                font-weight: 800 !important;
+                line-height: 1.35 !important;
+                margin-bottom: 4px !important;
+                padding-right: 32px !important; /* 閉じるボタンとの被り防止 */
+                display: -webkit-box !important;
+                -webkit-line-clamp: 3 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+                align-self: end !important;
+            }
+
+            /* 著者（右側下段） */
+            #modalAuthor {
+                grid-column: 2 !important;
+                grid-row: 2 !important;
+                text-align: left !important;
+                font-size: 11px !important;
+                margin-bottom: 0 !important;
+                color: #8e8e93 !important;
+                align-self: start !important;
+            }
+
+            /* --- 4. コントロール群の高密度再配置（2カラム） --- */
+            #modalCard > div:first-child > div.w-full.space-y-5 {
+                grid-column: 1 / 3 !important;
+                grid-row: 3 !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px 10px !important;
+                margin-top: 20px !important;
+            }
+            /* Tailwindの強すぎる縦余白を強制キャンセル */
+            #modalCard > div:first-child > div.w-full.space-y-5 > * { margin-top: 0 !important; }
+
+            /* ラベルのタイト化 */
+            #modalCard > div:first-child label {
+                font-size: 9px !important;
+                letter-spacing: 0.05em !important;
+                margin-bottom: 4px !important;
+                color: #8e8e93 !important;
+            }
+
+            /* Rank (左) & Status (右) */
+            #rank-ui-container { grid-column: 1 / 2 !important; }
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(2) { grid-column: 2 / 3 !important; }
+
+            /* UIパーツの極小化 */
+            .magic-rank-track, .status-segment {
+                height: 32px !important;
+                padding: 2px !important;
+                border-radius: 8px !important;
+            }
+            .magic-rank-item, .status-tab { font-size: 11px !important; border-radius: 6px !important; }
+            .magic-rank-item[data-rank=""] { font-size: 9px !important; }
+            
+            /* Tags (全幅) */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(3) {
+                grid-column: 1 / 3 !important;
+                padding-top: 0 !important;
+                border-top: none !important;
+            }
+            .tag-input-container {
+                min-height: 34px !important;
+                padding: 4px 8px !important;
+                border-radius: 8px !important;
+            }
+            .tag-chip { padding: 2px 8px !important; font-size: 10px !important; }
+            .tag-input { font-size: 12px !important; }
+
+            /* ご提案通り、スマホでのProgress(Page)は執筆の邪魔になるため完全非表示 */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(4) {
+                display: none !important;
+            }
+
+            /* 削除ボタン（目立たないテキストリンク風へ） */
+            #modalDeleteBtn {
+                grid-column: 1 / 3 !important;
+                padding: 8px !important;
+                font-size: 10px !important;
+                background: transparent !important;
+                color: #ff3b30 !important;
+                margin-top: 4px !important;
+                opacity: 0.7;
+            }
+
+            /* --- 5. メインエディタエリアの最適化 --- */
+            #modalCard > div:last-child {
+                padding: 20px 20px 80px 20px !important;
+            }
+            /* 各エディタ間の無駄な余白を削減 */
+            #modalCard > div:last-child > .max-w-3xl {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 24px !important;
+            }
+            #modalCard > div:last-child > .max-w-3xl > * { margin-top: 0 !important; }
+            
+            #modalCard > div:last-child label.text-xs {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
+            }
+            .rich-editor-wrapper { border-radius: 12px !important; }
+            .rich-content {
+                min-height: 100px !important;
+                padding: 12px !important;
+                font-size: 13px !important;
+                line-height: 1.6 !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 1000000% Mobile UI Revolution Patch ===
+// タイムラインの見切れ完全解消 & モーダルUIの極限最適化
+(function initMobileUIRevolution() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* ---------------------------------------------------
+               1. タイムラインの見切れ解消と究極の高密度・洗練配置
+            --------------------------------------------------- */
+            /* 全体の余白を大幅に削り、横スクロールを絶対防止 */
+            .timeline-container {
+                padding-left: 2rem !important; 
+                padding-right: 0 !important;
+                overflow-x: hidden !important; 
+            }
+            
+            /* 時間軸（線とドット）を画面左端ギリギリに寄せる */
+            .timeline-line {
+                left: 12px !important;
+            }
+            .timeline-dot {
+                left: 6px !important;
+                top: 1.25rem !important;
+                width: 14px !important;
+                height: 14px !important;
+                border-width: 3px !important;
+            }
+            
+            /* ヘッダー（年月）をコンパクトに */
+            .timeline-header {
+                margin-left: -2rem !important;
+                padding: 6px 12px !important;
+                margin-bottom: 12px !important;
+                border-radius: 8px !important;
+            }
+            .timeline-header span.text-2xl {
+                font-size: 1.15rem !important;
+            }
+            
+            /* カード幅を画面に完璧にフィットさせ、内部余白を圧縮 */
+            .timeline-card {
+                margin-left: 0.75rem !important;
+                margin-bottom: 1.2rem !important;
+                padding: 10px 12px !important; 
+                gap: 12px !important;
+                width: calc(100% - 0.75rem) !important; 
+                box-sizing: border-box !important;
+            }
+            
+            /* 書影のスマート化（邪魔にならない絶妙なサイズ） */
+            .timeline-card img {
+                width: 3.5rem !important; /* 約56px */
+                height: 5rem !important;  /* 約80px */
+                border-radius: 6px !important;
+            }
+            
+            /* テキスト情報エリアの高可読性化 */
+            .timeline-card .flex-1.min-w-0 {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+            }
+            
+            /* タイトルは2行まで表示を許容し、省略されすぎるのを防ぐ */
+            .timeline-card h4 {
+                font-size: 12.5px !important;
+                line-height: 1.35 !important;
+                white-space: normal !important; 
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                padding-right: 24px !important; /* バッジとの被り防止 */
+                margin-bottom: 2px !important;
+            }
+            
+            .timeline-card p {
+                font-size: 10px !important;
+            }
+            
+            /* ランクバッジ等の極小化 */
+            .timeline-rank-badge {
+                top: 8px !important;
+                right: 8px !important;
+                padding: 2px 6px !important;
+                font-size: 9px !important;
+            }
+
+            /* ---------------------------------------------------
+               2. モーダルUIの表示最適化と情報整理
+            --------------------------------------------------- */
+            /* コントロール群を2カラムグリッドでカッチリと再定義 */
+            #modalCard > div:first-child > div.w-full.space-y-5 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px 10px !important;
+                margin-top: 16px !important;
+            }
+            #modalCard > div:first-child > div.w-full.space-y-5 > * {
+                margin-top: 0 !important; 
+            }
+            
+            /* Rank (左側) と Status (右側) の明示的な配置により潰れを防止 */
+            #rank-ui-container {
+                grid-column: 1 / 2 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(2) {
+                grid-column: 2 / 3 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                min-width: 0 !important; /* Flex子要素の横幅計算を安定させる */
+            }
+            
+            /* Statusボタンが見切れないようにテキストを最適化 */
+            .status-segment {
+                width: 100% !important;
+            }
+            .status-tab {
+                font-size: 10px !important;
+                padding: 0 2px !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Tags (全幅) */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(3) {
+                grid-column: 1 / 3 !important;
+            }
+
+            /* スマホ版では執筆のノイズになるProgressを非表示に */
+            #modalCard > div:first-child > div.w-full.space-y-5 > div:nth-child(4) {
+                display: none !important;
+            }
+            
+            /* 削除ボタン (全幅) */
+            #modalDeleteBtn {
+                grid-column: 1 / 3 !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 100000000% Ultimate Mobile Timeline UI Patch ===
+// タイムラインの文字被り完全解消 & 究極の洗練配置
+(function initUltimateMobileTimeline() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            /* ---------------------------------------------------
+               1. タイムラインの土台と時間軸の再構築
+            --------------------------------------------------- */
+            .timeline-container {
+                padding-left: 16px !important; /* 余白を最適化して画面を広く使う */
+                padding-right: 0 !important;
+                overflow-x: hidden !important; 
+                margin-top: 8px !important;
+            }
+            
+            /* 時間軸ラインを左端ギリギリに、細く美しく */
+            .timeline-line {
+                left: 12px !important;
+                width: 2px !important;
+                background: linear-gradient(to bottom, transparent, var(--accent-color) 15%, #32d74b 85%, transparent) !important;
+                opacity: 0.4 !important;
+            }
+
+            /* ---------------------------------------------------
+               2. ヘッダー（被り問題の完全解消とすりガラス化）
+            --------------------------------------------------- */
+            .timeline-header {
+                position: sticky !important;
+                top: 55px !important; /* 上部ナビゲーションの下にピタッと吸着 */
+                z-index: 40 !important;
+                display: flex !important; /* ブロックとして振る舞わせ被りを防ぐ */
+                align-items: baseline !important;
+                margin-left: -16px !important; /* 画面左端から生やす */
+                margin-bottom: 24px !important; /* ★ここでカードとの被りを完全に防止！ */
+                padding: 8px 16px 8px 16px !important;
+                background: rgba(255, 255, 255, 0.85) !important;
+                backdrop-filter: blur(24px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+                border: 1px solid rgba(0,0,0,0.05) !important;
+                border-left: none !important;
+                border-radius: 0 16px 16px 0 !important;
+                width: max-content !important;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+            }
+            .dark .timeline-header {
+                background: rgba(28, 28, 30, 0.85) !important;
+                border-color: rgba(255,255,255,0.1) !important;
+            }
+            
+            /* 月表示のタイポグラフィをApple的に洗練 */
+            .timeline-header span:first-child {
+                font-size: 1.25rem !important;
+                font-weight: 900 !important;
+                letter-spacing: -0.02em !important;
+            }
+            .timeline-header span:last-child {
+                font-size: 0.65rem !important;
+                margin-left: 8px !important;
+                opacity: 0.6 !important;
+            }
+
+            /* ---------------------------------------------------
+               3. ドットとカードの連携（マージンと配置の極限最適化）
+            --------------------------------------------------- */
+            /* ドット位置のズレをミリ単位で修正 */
+            .timeline-dot {
+                left: 7px !important; /* ラインの中心に完璧に合わせる */
+                top: 22px !important; /* カードの中心より少し上に配置 */
+                width: 12px !important;
+                height: 12px !important;
+                border-width: 3px !important;
+            }
+
+            /* カードを囲む要素の余白を制御 */
+            #bookshelf-timeline > div.group {
+                margin-bottom: 16px !important; /* カード間の縦の隙間 */
+            }
+
+            .timeline-card {
+                margin-left: 12px !important; /* ドットからの距離 */
+                margin-bottom: 0 !important;
+                padding: 12px !important; 
+                gap: 12px !important;
+                width: calc(100% - 12px - 16px) !important; /* 右側に16pxの余白を残して画面内に完璧に収める */
+                border-radius: 16px !important;
+                background: #ffffff !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02) !important;
+                border: 1px solid rgba(0,0,0,0.03) !important;
+            }
+            .dark .timeline-card {
+                background: #1c1c1e !important;
+                border-color: rgba(255,255,255,0.06) !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+            }
+
+            /* ---------------------------------------------------
+               4. カード内部のUI情報密度アップ
+            --------------------------------------------------- */
+            /* 書影を邪魔にならないサイズへ */
+            .timeline-card img {
+                width: 48px !important;
+                height: 68px !important;
+                border-radius: 6px !important;
+                object-fit: cover !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            }
+
+            .timeline-card .flex-1.min-w-0 {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                min-width: 0 !important; /* はみ出し防止の要 */
+            }
+            
+            /* 上部のメタデータ（日付・ステータス）をコンパクトに */
+            .timeline-card .flex.items-center.gap-2.mb-1\\.5 {
+                margin-bottom: 4px !important;
+                gap: 6px !important;
+            }
+            .timeline-card .flex.items-center.gap-2.mb-1\\.5 span {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                border-radius: 4px !important;
+                background: rgba(142,142,147,0.1) !important;
+            }
+            .dark .timeline-card .flex.items-center.gap-2.mb-1\\.5 span {
+                background: rgba(255,255,255,0.1) !important;
+            }
+
+            /* タイトル：長すぎても2行で美しく省略 */
+            .timeline-card h4 {
+                font-size: 13px !important;
+                font-weight: 800 !important;
+                line-height: 1.4 !important;
+                white-space: normal !important; 
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                padding-right: 0 !important; 
+                margin-bottom: 2px !important;
+                color: var(--text-main) !important;
+            }
+            
+            /* 著者名：1行で省略 */
+            .timeline-card p {
+                font-size: 10px !important;
+                color: #8e8e93 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                margin-top: 0 !important;
+            }
+            
+            /* ランクバッジの小型化・配置最適化 */
+            .timeline-rank-badge {
+                position: absolute !important;
+                top: 8px !important;
+                right: 8px !important;
+                padding: 2px 6px !important;
+                font-size: 9px !important;
+                border-radius: 6px !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 100000000% Perfect Timeline Evolution Patch ===
+// タイムラインの「文字被り」と「見切れ」をDOM構造から根本的に解決し、
+// iOSネイティブ水準の極上UI/UXに昇華させる最終パッチ
+(function initPerfectTimelineEvolution() {
+    // 1. スマホ・PC共通の極上タイムラインCSSを注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* タイムライン全体のコンテナ最適化 */
+        #bookshelf-timeline {
+            padding-left: 24px !important;
+            padding-right: 0 !important;
+            overflow-x: hidden !important; 
+        }
+
+        /* 時間軸のライン（左端に美しく固定） */
+        .timeline-line {
+            left: 12px !important;
+            width: 2px !important;
+            background: linear-gradient(to bottom, transparent, var(--accent-color) 15%, #32d74b 85%, transparent) !important;
+            opacity: 0.3 !important;
+            z-index: 0 !important;
+        }
+
+        /* 月ごとのグループ（この構造化により被りを物理的に防ぐ） */
+        .timeline-month-group {
+            position: relative !important;
+            margin-bottom: 32px !important;
+            z-index: 10 !important;
+        }
+
+        /* 吸着するヘッダー（すりガラス効果でカードが美しく透ける） */
+        .timeline-month-header {
+            position: sticky !important;
+            top: 55px !important; /* ナビゲーションの下にピタッと吸着 */
+            z-index: 30 !important;
+            display: flex !important;
+            align-items: baseline !important;
+            margin-left: -24px !important; /* 左の余白を打ち消して画面端から表示 */
+            width: calc(100% + 24px) !important;
+            padding: 10px 16px 10px 24px !important;
+            margin-bottom: 16px !important; /* ★ここで直下のカードとの距離を確実に確保 */
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+            border-top: 1px solid rgba(255,255,255,0.5) !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03) !important;
+        }
+        .dark .timeline-month-header {
+            background: rgba(28, 28, 30, 0.85) !important;
+            border-bottom-color: rgba(255,255,255,0.05) !important;
+            border-top-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* ドットのアニメーションと配置 */
+        .timeline-evo-dot {
+            position: absolute !important;
+            left: -20px !important; /* ラインの中心に完璧に合わせる */
+            top: 20px !important;
+            width: 14px !important;
+            height: 14px !important;
+            border-radius: 50% !important;
+            border: 3px solid #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+            z-index: 20 !important;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .dark .timeline-evo-dot { border-color: #1c1c1e !important; }
+        .group:hover .timeline-evo-dot { transform: scale(1.3) !important; }
+
+        /* カードデザインの極限洗練 */
+        .timeline-evo-card {
+            display: flex !important;
+            gap: 12px !important;
+            padding: 12px !important;
+            margin-left: 6px !important; /* ドットからの距離 */
+            margin-right: 0 !important; /* スマホ画面右端の見切れ防止 */
+            margin-bottom: 12px !important;
+            background: #ffffff !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(0,0,0,0.04) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02) !important;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+            cursor: pointer !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        .dark .timeline-evo-card {
+            background: #1c1c1e !important;
+            border-color: rgba(255,255,255,0.05) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+        }
+        .timeline-evo-card:active { transform: scale(0.98) !important; }
+
+        /* ランクバッジの専用配色（Apple風グラデーション） */
+        .rank-badge-evo {
+            position: absolute !important;
+            top: 8px !important;
+            right: 8px !important;
+            padding: 2px 6px !important;
+            font-size: 9px !important;
+            font-weight: 900 !important;
+            border-radius: 6px !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+            z-index: 10 !important;
+        }
+        .rb-S { background: linear-gradient(135deg, #facc15, #f59e0b) !important; }
+        .rb-A { background: linear-gradient(135deg, #94a3b8, #64748b) !important; }
+        .rb-B { background: linear-gradient(135deg, #f97316, #c2410c) !important; }
+        .rb-C { background: linear-gradient(135deg, #a1a1aa, #71717a) !important; }
+
+        /* タイトルの2行省略（Line Clamp）を確実に効かせる */
+        .text-line-clamp-2 {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            white-space: normal !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. タイムライン描画関数を完全に上書きし、DOM構造を「月別グループ」でネストする
+    //    これにより、物理的にヘッダーとカードが被るバグが消滅します。
+    window.renderTimeline = function() {
+        const c = document.getElementById('bookshelf-timeline');
+        if (!c) return;
+        c.innerHTML = '<div class="timeline-line"></div>';
+
+        // データの取得とソート
+        const books = myBooks
+            .filter(b => !localQuery || (b.title + " " + b.author).toLowerCase().includes(localQuery.toLowerCase()))
+            .sort((a,b) => (b.addedAt||0) - (a.addedAt||0));
+
+        if(books.length === 0) return;
+
+        let lastYM = "";
+        const counts = {};
+        
+        // 月ごとの件数集計
+        books.forEach(b => {
+            const d = new Date(b.addedAt || Date.now());
+            if(isNaN(d.getTime())) return;
+            const ym = `${d.getFullYear()}.${(d.getMonth()+1).toString().padStart(2, '0')}`;
+            counts[ym] = (counts[ym] || 0) + 1;
+        });
+
+        let delayIndex = 0;
+        let currentGroup = null;
+
+        books.forEach(b => {
+            const d = new Date(b.addedAt || Date.now());
+            const safeD = isNaN(d.getTime()) ? new Date() : d;
+            const ym = `${safeD.getFullYear()}.${(safeD.getMonth()+1).toString().padStart(2, '0')}`;
+            
+            // 月が変わったら、新しい「月別グループ」を作成
+            if(ym !== lastYM) {
+                currentGroup = document.createElement('div');
+                currentGroup.className = "timeline-month-group";
+                
+                // ヘッダーをグループの中に生成
+                const h = document.createElement('div');
+                h.className = "timeline-month-header";
+                h.innerHTML = `
+                    <span class="text-[1.35rem] font-black font-mono dark:text-white tracking-tighter">${ym}</span>
+                    <span class="text-[9px] text-gray-500 font-bold tracking-widest uppercase ml-2">${counts[ym]||0} Books</span>
+                `;
+                currentGroup.appendChild(h);
+                c.appendChild(currentGroup);
+                lastYM = ym;
+            }
+            
+            // ステータスごとの色分け判定
+            const stText = b.status === 'reading' ? '読書中' : (b.status === 'completed' ? '読了' : '追加済');
+            const dotColor = b.status === 'reading' ? 'bg-accent' : (b.status === 'completed' ? 'bg-green-500' : 'bg-gray-400');
+            const stTextColor = b.status === 'reading' ? 'text-accent' : (b.status === 'completed' ? 'text-green-500' : 'text-gray-500');
+            
+            // ランクバッジの生成
+            let rankHtml = '';
+            if(b.rank) {
+                rankHtml = `<div class="rank-badge-evo rb-${b.rank}">${b.rank}</div>`;
+            }
+
+            // カード全体のラッパー
+            const div = document.createElement('div');
+            div.className = "relative group";
+            div.style.animation = `timeline-slide-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${delayIndex * 0.05}s both`;
+            delayIndex++;
+
+            const displayTitle = typeof highlightText === 'function' ? highlightText(b.title, localQuery) : escapeHTML(b.title);
+            const displayAuthor = typeof highlightText === 'function' ? highlightText(b.author, localQuery) : escapeHTML(b.author);
+            const safeImg = escapeHTML(getImg(b));
+
+            // カードの内部構造（極限まで洗練されたレイアウト）
+            div.innerHTML = `
+                <div class="timeline-evo-dot ${dotColor}"></div>
+                <div class="timeline-evo-card haptic-tap" onclick="openModal('${b.id}', event); triggerHaptic();">
+                    ${rankHtml}
+                    <img src="${safeImg}" class="w-[48px] h-[68px] md:w-[56px] md:h-[80px] object-cover bg-gray-100 dark:bg-gray-800 shrink-0 rounded-md shadow-sm">
+                    
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-[9px] font-mono font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">${safeD.getDate()}日</span>
+                            <span class="text-[9px] font-bold ${stTextColor}">${stText}</span>
+                        </div>
+                        <h4 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 dark:text-white leading-[1.35] text-line-clamp-2 pr-6 mb-0.5">${displayTitle}</h4>
+                        <p class="text-[10px] text-gray-500 truncate">${displayAuthor}</p>
+                    </div>
+                </div>
+            `;
+            // 月別グループの中にカードを追加（これによりヘッダーとの重なりが起きない）
+            currentGroup.appendChild(div);
+        });
+    };
+
+    // すでにタイムラインが開かれている場合は、即座に再描画してパッチを適用
+    if (typeof currentView !== 'undefined' && currentView === 'timeline') {
+        if(typeof applyView === 'function') applyView();
+    }
+})();
+
+// === 100000000% Slack-like Ultimate Rich Editor Patch ===
+// 読書メモの質を劇的に引き上げる、常時表示型の高機能モダンエディタUI
+(function initUltimateEditor() {
+    // 1. Slack風UIとリッチテキスト（箇条書き等）のスタイルを注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* エディタ全体を包むシームレスなカード */
+        .slack-editor-wrapper {
+            display: flex !important;
+            flex-direction: column !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+            border-radius: 12px !important;
+            background: #ffffff !important;
+            overflow: hidden !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+            margin-bottom: 24px !important;
+        }
+        .dark .slack-editor-wrapper {
+            background: #1c1c1e !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        
+        /* フォーカス時の美しいアウトライン（アクセントカラー連動） */
+        .slack-editor-wrapper:focus-within {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15) !important;
+        }
+
+        /* 上部ツールバー */
+        .slack-toolbar {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            padding: 6px 8px !important;
+            background: rgba(0,0,0,0.02) !important;
+            border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+            gap: 2px !important;
+            opacity: 1 !important; /* 常に表示 */
+            position: relative !important;
+            transform: none !important;
+            pointer-events: auto !important;
+        }
+        .dark .slack-toolbar {
+            background: rgba(255,255,255,0.02) !important;
+            border-bottom-color: rgba(255,255,255,0.06) !important;
+        }
+
+        /* ツールバーのアイコンボタン */
+        .slack-btn {
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 6px !important;
+            background: transparent !important;
+            border: none !important;
+            color: #616061 !important;
+            cursor: pointer !important;
+            transition: background 0.2s, color 0.2s !important;
+        }
+        .dark .slack-btn { color: #ababad !important; }
+        
+        .slack-btn:hover { background: rgba(0,0,0,0.06) !important; color: #1d1d1f !important; }
+        .dark .slack-btn:hover { background: rgba(255,255,255,0.1) !important; color: #ffffff !important; }
+        
+        .slack-btn svg { width: 16px !important; height: 16px !important; fill: currentColor !important; }
+        
+        /* ツールバーの区切り線 */
+        .slack-divider {
+            width: 1px !important;
+            height: 16px !important;
+            background: rgba(0,0,0,0.1) !important;
+            margin: 0 6px !important;
+        }
+        .dark .slack-divider { background: rgba(255,255,255,0.1) !important; }
+
+        /* マーカーカラーパレット（右寄せ） */
+        .slack-color-group {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            margin-left: auto !important; /* 右側に押しやる */
+            padding-right: 4px !important;
+        }
+        .slack-color-gem {
+            width: 16px !important;
+            height: 16px !important;
+            border-radius: 50% !important;
+            cursor: pointer !important;
+            border: 2px solid transparent !important;
+            transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        }
+        .slack-color-gem:hover { transform: scale(1.3) !important; }
+
+        /* フッター（Zen Modeボタン配置用） */
+        .slack-footer {
+            display: flex !important;
+            justify-content: flex-end !important;
+            padding: 4px 8px !important;
+            background: rgba(0,0,0,0.01) !important;
+            border-top: 1px solid rgba(0,0,0,0.03) !important;
+        }
+        .dark .slack-footer {
+            background: rgba(255,255,255,0.01) !important;
+            border-top-color: rgba(255,255,255,0.03) !important;
+        }
+        .slack-zen-btn {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            color: #8e8e93 !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 6px 10px !important;
+            border-radius: 6px !important;
+            letter-spacing: 0.05em !important;
+            transition: all 0.2s !important;
+            text-transform: uppercase !important;
+        }
+        .slack-zen-btn:hover { background: rgba(0,0,0,0.05) !important; color: var(--text-main) !important; }
+        .dark .slack-zen-btn:hover { background: rgba(255,255,255,0.1) !important; }
+
+        /* エディタ本体のスタイル（リスト等をTailwindリセットから復元） */
+        .slack-content {
+            padding: 16px 20px !important;
+            min-height: 120px !important;
+            outline: none !important;
+            font-size: 14px !important;
+            line-height: 1.7 !important;
+            white-space: pre-wrap !important;
+            color: var(--text-main) !important;
+        }
+        /* 箇条書きと番号付きリストの復元 */
+        .slack-content ul { list-style-type: disc !important; padding-left: 1.8em !important; margin-top: 0.5em !important; margin-bottom: 0.5em !important; }
+        .slack-content ol { list-style-type: decimal !important; padding-left: 1.8em !important; margin-top: 0.5em !important; margin-bottom: 0.5em !important; }
+        .slack-content li { margin-bottom: 0.2em !important; }
+        
+        /* 引用（ブロッククオート）の美しいスタイル */
+        .slack-content blockquote {
+            border-left: 4px solid var(--accent-color) !important;
+            padding-left: 1em !important;
+            margin-left: 0 !important;
+            margin-top: 0.5em !important;
+            margin-bottom: 0.5em !important;
+            color: #636366 !important;
+            background: rgba(0,0,0,0.02) !important;
+            padding-top: 0.5em !important;
+            padding-bottom: 0.5em !important;
+            border-radius: 0 8px 8px 0 !important;
+        }
+        .dark .slack-content blockquote {
+            color: #aeaeb2 !important;
+            background: rgba(255,255,255,0.03) !important;
+        }
+        
+        /* リンクのスタイル */
+        .slack-content a {
+            color: var(--accent-color) !important;
+            text-decoration: underline !important;
+            text-underline-offset: 2px !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. 既存の「隠しツールバー型」エディタを「Slack型」に置換
+    const types = ['concepts', 'summary', 'review'];
+    
+    types.forEach(type => {
+        const editorNode = document.getElementById(`editor-${type}`);
+        if (!editorNode) return;
+        
+        const wrapper = editorNode.closest('.rich-editor-wrapper');
+        if (!wrapper) return;
+
+        // 既存の textarea(保存用) を取得
+        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+        const textareaNode = document.getElementById(`memo${capitalizedType}`);
+
+        // ラッパーのクラスを上書きして、新デザインを適用
+        wrapper.className = 'slack-editor-wrapper';
+
+        // ツールバーの構築（SlackライクなSVGアイコン）
+        const toolbar = document.createElement('div');
+        toolbar.className = 'slack-toolbar';
+        toolbar.innerHTML = `
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('bold'); triggerHaptic();" title="太字 (Cmd+B)">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14h4.5c2.5 0 4.5-1.6 4.5-3.5c0-1.2-.7-2.3-1.8-2.9 1-.6 1.8-1.6 1.8-2.9C17 7.7 15 6.2 12.5 6.2H8zm3 5H11V8h1.5c1 0 1.5.5 1.5 1.2S13.5 10 12.5 10zm.5 6H11v-3h2c1 0 1.8.6 1.8 1.5S14 16 13 16z"/></svg>
+            </button>
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('italic'); triggerHaptic();" title="斜体 (Cmd+I)">
+                <svg viewBox="0 0 24 24"><path d="M10 5v3h2.2l-3.4 8H6v3h8v-3h-2.2l3.4-8H18V5h-8z"/></svg>
+            </button>
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('underline'); triggerHaptic();" title="下線 (Cmd+U)">
+                <svg viewBox="0 0 24 24"><path d="M12 17c-3.3 0-6-2.7-6-6V5h2.5v6c0 1.9 1.6 3.5 3.5 3.5s3.5-1.6 3.5-3.5V5H18v6c0 3.3-2.7 6-6 6zM5 19h14v2H5v-2z"/></svg>
+            </button>
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('strikeThrough'); triggerHaptic();" title="取消線">
+                <svg viewBox="0 0 24 24"><path d="M10 19h4v-3h-4v3zM5 4v3h5v3h4V7h5V4H5zM3 14h18v-2H3v2z"/></svg>
+            </button>
+            
+            <div class="slack-divider"></div>
+            
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); window.insertLinkPro(); triggerHaptic();" title="リンク">
+                <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.7 1.4-3.1 3.1-3.1h4V7H7c-2.8 0-5 2.2-5 5s2.2 5 5 5h4v-1.9H7c-1.7 0-3.1-1.4-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.7 0 3.1 1.4 3.1 3.1s-1.4 3.1-3.1 3.1h-4V17h4c2.8 0 5-2.2 5-5s-2.2-5-5-5z"/></svg>
+            </button>
+            
+            <div class="slack-divider"></div>
+            
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('insertUnorderedList'); triggerHaptic();" title="箇条書き">
+                <svg viewBox="0 0 24 24"><path d="M4 10.5c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5 1.5-.7 1.5-1.5-.7-1.5-1.5-1.5zm0-6c-.8 0-1.5.7-1.5 1.5S3.2 7.5 4 7.5 5.5 6.8 5.5 6 4.8 4.5 4 4.5zm0 12c-.8 0-1.5.8-1.5 1.5s.7 1.5 1.5 1.5 1.5-.7 1.5-1.5-.7-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/></svg>
+            </button>
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('insertOrderedList'); triggerHaptic();" title="番号付きリスト">
+                <svg viewBox="0 0 24 24"><path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/></svg>
+            </button>
+            <button class="slack-btn haptic-tap" onmousedown="preventFocusLoss(event); formatText('formatBlock', 'BLOCKQUOTE'); triggerHaptic();" title="引用">
+                <svg viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3l-2 4zm8 0h3l2-4V7h-6v6h3l-2 4z"/></svg>
+            </button>
+
+            <div class="slack-color-group">
+                <div class="slack-color-gem bg-[#ffd60a]" onmousedown="preventFocusLoss(event); window.applySlackHighlight('yellow'); triggerHaptic();" title="イエローマーカー"></div>
+                <div class="slack-color-gem bg-[#32d74b]" onmousedown="preventFocusLoss(event); window.applySlackHighlight('green'); triggerHaptic();" title="グリーンマーカー"></div>
+                <div class="slack-color-gem bg-[#ff375f]" onmousedown="preventFocusLoss(event); window.applySlackHighlight('pink'); triggerHaptic();" title="ピンクマーカー"></div>
+                <div class="slack-color-gem bg-[#0a84ff]" onmousedown="preventFocusLoss(event); window.applySlackHighlight('blue'); triggerHaptic();" title="ブルーマーカー"></div>
+                <div class="slack-color-gem bg-[#bf5af2]" onmousedown="preventFocusLoss(event); window.applySlackHighlight('purple'); triggerHaptic();" title="パープルマーカー"></div>
+            </div>
+        `;
+
+        // エディタ領域のクラス更新
+        editorNode.className = 'rich-content slack-content';
+
+        // フッター（Zen Modeボタンを安全な位置へ退避）
+        const footer = document.createElement('div');
+        footer.className = 'slack-footer';
+        footer.innerHTML = `
+            <button class="slack-zen-btn haptic-tap" onclick="openZenMode('memo${capitalizedType}'); triggerHaptic();">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                Zen Mode
+            </button>
+        `;
+
+        // DOMの中身を入れ替え（既存のeditorとtextareaはそのまま再配置するので保存ロジックは壊れません）
+        wrapper.innerHTML = '';
+        wrapper.appendChild(toolbar);
+        wrapper.appendChild(editorNode);
+        wrapper.appendChild(textareaNode);
+        wrapper.appendChild(footer);
+    });
+
+    // 3. リンク挿入用の新機能
+    window.insertLinkPro = function() {
+        const url = prompt("リンク先のURLを入力してください:", "https://");
+        if (url) {
+            document.execCommand("createLink", false, url);
+            // 変更を裏のtextareaに同期
+            const activeEditor = document.activeElement;
+            if (activeEditor && activeEditor.classList.contains('slack-content')) {
+                const type = activeEditor.id.replace('editor-', '');
+                if(typeof window.syncRichText === 'function') window.syncRichText(type);
+            }
+        }
+    };
+
+    // 4. マーカー機能のスマート化（ツールバーから直指定）
+    window.applySlackHighlight = function(color) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        
+        // 現在アクティブ（選択中）のエディタを探す
+        const range = sel.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        const editorNode = container.nodeType === 3 ? container.parentElement.closest('.slack-content') : container.closest('.slack-content');
+        
+        if(!editorNode) return;
+        
+        const span = document.createElement("span");
+        span.className = 'marker-' + color;
+
+        try {
+            const content = range.extractContents();
+            span.appendChild(content);
+            range.insertNode(span);
+        } catch(e) {
+            document.execCommand('insertHTML', false, span.outerHTML);
+        }
+
+        // 保存システムとの同期
+        const type = editorNode.id.replace('editor-', '');
+        if(typeof window.syncRichText === 'function') window.syncRichText(type);
+        
+        sel.removeAllRanges();
+    };
+
+})();
+
+// === 100000000% Smart Auto-Hide Editor Patch ===
+// 執筆時のみツールバーが展開し、普段は極限までコンパクトに収まるスマートUIパッチ
+(function initSmartAutoHideEditor() {
+    // 1. CSSでアニメーション付きの展開/格納スタイルを注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* ツールバーとフッターの初期状態（格納して見えなくする） */
+        .slack-toolbar {
+            max-height: 0px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            border-bottom-color: transparent !important;
+            transition: max-height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        padding 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        opacity 0.2s ease,
+                        border-color 0.3s ease !important;
+        }
+
+        .slack-footer {
+            max-height: 0px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            border-top-color: transparent !important;
+            transition: max-height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        padding 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        opacity 0.2s ease,
+                        border-color 0.3s ease !important;
+        }
+
+        /* エディタ本体も普段はコンパクトに（余白を削減） */
+        .slack-content {
+            transition: min-height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+            min-height: 50px !important; /* 普段は1〜2行分だけ確保してスッキリ見せる */
+        }
+
+        /* ----------------------------------------------------
+           アクティブ（タップしてフォーカス）時の展開スタイル
+        ---------------------------------------------------- */
+        .slack-editor-wrapper.is-active .slack-toolbar,
+        .slack-editor-wrapper:focus-within .slack-toolbar {
+            max-height: 80px !important; /* アイコンが折り返しても収まる高さに広がる */
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+            opacity: 1 !important;
+            border-bottom-color: rgba(0,0,0,0.06) !important;
+        }
+        .dark .slack-editor-wrapper.is-active .slack-toolbar,
+        .dark .slack-editor-wrapper:focus-within .slack-toolbar {
+            border-bottom-color: rgba(255,255,255,0.06) !important;
+        }
+
+        .slack-editor-wrapper.is-active .slack-footer,
+        .slack-editor-wrapper:focus-within .slack-footer {
+            max-height: 40px !important;
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            opacity: 1 !important;
+            border-top-color: rgba(0,0,0,0.03) !important;
+        }
+        .dark .slack-editor-wrapper.is-active .slack-footer,
+        .dark .slack-editor-wrapper:focus-within .slack-footer {
+            border-top-color: rgba(255,255,255,0.03) !important;
+        }
+
+        /* アクティブ時はしっかり書ける広さにエディタ自体も拡大 */
+        .slack-editor-wrapper.is-active .slack-content,
+        .slack-editor-wrapper:focus-within .slack-content {
+            min-height: 120px !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. タッチデバイスやツールボタン押下時でも安定して展開状態を維持するためのJS制御
+    function setupSmartFocus() {
+        const wrappers = document.querySelectorAll('.slack-editor-wrapper');
+        wrappers.forEach(wrapper => {
+            const editor = wrapper.querySelector('.slack-content');
+            if(!editor) return;
+            
+            // テキストエリアがタップ（フォーカス）されたら 'is-active' クラスを付与
+            editor.addEventListener('focus', () => {
+                // 他のエディタのフォーカスを外す（アコーディオンのように1つだけ開く挙動）
+                wrappers.forEach(w => {
+                    if (w !== wrapper) w.classList.remove('is-active');
+                });
+                wrapper.classList.add('is-active');
+            });
+        });
+    }
+
+    // 画面外（エディタ以外の何もない場所）をタップ/クリックしたらツールバーを閉じる（格納する）
+    function handleOutsideClick(e) {
+        if (!e.target.closest('.slack-editor-wrapper') && !e.target.closest('.magic-selection-popover')) {
+            document.querySelectorAll('.slack-editor-wrapper').forEach(w => {
+                w.classList.remove('is-active');
+            });
+        }
+    }
+    
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick, {passive: true});
+
+    // モーダルを開くたびにセットアップを再適用する（DOMが更新されるため）
+    const originalOpenModal = window.openModal;
+    window.openModal = function(id, event) {
+        if (typeof originalOpenModal === 'function') {
+            originalOpenModal(id, event);
+        }
+        // モーダル展開後にイベントをバインド
+        setTimeout(setupSmartFocus, 100);
+    };
+
+    // 初回起動時用の実行
+    setTimeout(setupSmartFocus, 500);
+})();
+
+// === 100000000% Revolutionary Dashboard Menu Patch ===
+// メニュー欄を「設定画面」から「極上のダッシュボード」へと抜本的にUI/UXを向上させるパッチ
+(function initRevolutionaryDashboard() {
+    // 1. ダッシュボード専用の極上CSSを注入
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* ---------------------------------------------------
+           ダッシュボード本体のフローティング・ガラスモーフィズム
+        --------------------------------------------------- */
+        #settingsMenu {
+            /* 画面端にベタ付けせず、少し浮かせる（PC） */
+            width: 380px !important;
+            height: calc(100% - 32px) !important;
+            top: 16px !important;
+            right: 16px !important;
+            border-radius: 32px !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(40px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05) !important;
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease !important;
+            padding: 0 !important;
+        }
+        .dark #settingsMenu {
+            background: rgba(30, 30, 32, 0.8) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) !important;
+        }
+
+        /* 開閉アニメーションのオーバーライド（PC: 縮みながら右へ消える） */
+        @media (min-width: 769px) {
+            #settingsMenu.translate-x-full {
+                transform: translateX(calc(100% + 32px)) scale(0.95) !important;
+                opacity: 0 !important;
+            }
+        }
+
+        /* スマホ: iOS純正ボトムシートのように下からせり上がる */
+        @media (max-width: 768px) {
+            #settingsMenu {
+                width: 100% !important;
+                height: 88vh !important;
+                top: auto !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                border-radius: 32px 32px 0 0 !important;
+                border-left: none !important;
+                border-right: none !important;
+                border-bottom: none !important;
+                border-top: 1px solid rgba(255,255,255,0.3) !important;
+            }
+            .dark #settingsMenu {
+                border-top: 1px solid rgba(255,255,255,0.1) !important;
+            }
+            #settingsMenu.translate-x-full {
+                transform: translateY(100%) !important;
+                opacity: 0.5 !important;
+            }
+        }
+
+        /* ---------------------------------------------------
+           ダッシュボード内のウィジェットUI
+        --------------------------------------------------- */
+        /* メイン統計のヒーローカード */
+        .dash-hero-card {
+            background: rgba(255,255,255,0.6) !important;
+            border-radius: 28px !important;
+            padding: 24px 20px !important;
+            border: 1px solid rgba(255,255,255,0.8) !important;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04), inset 0 1px 2px rgba(255,255,255,1) !important;
+        }
+        .dark .dash-hero-card {
+            background: rgba(0,0,0,0.2) !important;
+            border-color: rgba(255,255,255,0.05) !important;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.05) !important;
+        }
+
+        /* ドーナツチャートの美化（サイズと質感の向上） */
+        .donut-chart {
+            width: 180px !important;
+            height: 180px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+            border-radius: 50% !important;
+            margin: 0 auto !important;
+            /* backgroundのconic-gradientはJSが直接書き換えるため !important をつけない */
+        }
+        .dark .donut-chart {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+        .donut-inner {
+            width: 140px !important;
+            height: 140px !important;
+            background: #ffffff !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05) !important;
+        }
+        .dark .donut-inner {
+            background: #1c1c1e !important;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.5) !important;
+        }
+
+        /* 3連ミニカード（各ステータス） */
+        .dash-mini-card {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            background: #ffffff !important;
+            border-radius: 20px !important;
+            padding: 16px 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+            border: 1px solid rgba(0,0,0,0.02) !important;
+        }
+        .dark .dash-mini-card {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.05) !important;
+        }
+
+        /* ---------------------------------------------------
+           データ管理セクション（iOS設定アプリ風）
+        --------------------------------------------------- */
+        .dash-storage-group {
+            background: #ffffff !important;
+            border-radius: 24px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
+            border: 1px solid rgba(0,0,0,0.04) !important;
+        }
+        .dark .dash-storage-group {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.05) !important;
+        }
+        
+        .dash-storage-btn {
+            display: flex !important;
+            align-items: center !important;
+            width: 100% !important;
+            padding: 16px 20px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            text-align: left !important;
+            transition: background 0.2s !important;
+        }
+        .dash-storage-btn:hover, .dash-storage-btn:active { background: rgba(0,0,0,0.03) !important; }
+        .dark .dash-storage-btn:hover, .dark .dash-storage-btn:active { background: rgba(255,255,255,0.05) !important; }
+        
+        .dash-storage-icon {
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-right: 16px !important;
+            flex-shrink: 0 !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. メニューのDOM要素を取得し、内部を美しいダッシュボードUIで完全上書き
+    const menu = document.getElementById('settingsMenu');
+    if (!menu) return;
+
+    // ※ 既存の関数（updateStats、exportData、importDataなど）を一切壊さないよう、
+    // ID（stat-total, stat-unread等）はそのまま維持します。
+    menu.innerHTML = `
+        <div class="h-full flex flex-col p-6 md:p-8 relative overflow-y-auto">
+            
+            <div class="w-full flex justify-center mb-6 md:hidden">
+                <div class="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+            </div>
+
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight dark:text-white leading-none">Dashboard</h2>
+                    <p class="text-[11px] text-gray-500 font-bold mt-2 uppercase tracking-widest">Your Reading Activity</p>
+                </div>
+                <button onclick="toggleSettings(); triggerHaptic();" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-200 transition haptic-tap shrink-0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="dash-hero-card mb-8">
+                <div class="relative w-full flex justify-center pb-6">
+                    <div class="donut-chart" id="donutChart">
+                        <div class="donut-inner">
+                            <span class="text-[10px] text-gray-400 font-extrabold tracking-widest mb-1">TOTAL</span>
+                            <span id="stat-total" class="text-5xl font-black dark:text-white tracking-tighter leading-none">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="dash-mini-card">
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-500 mb-2 shadow-sm"></div>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">読みたい</span>
+                        <span id="stat-unread" class="text-xl font-black dark:text-white leading-none">0</span>
+                    </div>
+                    <div class="dash-mini-card">
+                        <div class="w-2.5 h-2.5 rounded-full bg-accent mb-2 shadow-sm"></div>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">読書中</span>
+                        <span id="stat-reading" class="text-xl font-black dark:text-white leading-none">0</span>
+                    </div>
+                    <div class="dash-mini-card">
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500 mb-2 shadow-sm"></div>
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">読了</span>
+                        <span id="stat-completed" class="text-xl font-black dark:text-white leading-none">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto pb-8">
+                <h3 class="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 pl-2">Data Storage</h3>
+                <div class="dash-storage-group">
+                    <button onclick="exportData(); triggerHaptic();" class="dash-storage-btn border-b border-gray-100 dark:border-gray-800/50 haptic-tap">
+                        <div class="dash-storage-icon bg-blue-50 dark:bg-blue-900/30 text-accent">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-[13px] dark:text-white mb-0.5">バックアップを保存</span>
+                            <span class="text-[10px] text-gray-500">現在のデータをJSON形式で書き出す</span>
+                        </div>
+                    </button>
+                    
+                    <label class="dash-storage-btn haptic-tap m-0">
+                        <div class="dash-storage-icon bg-green-50 dark:bg-green-900/30 text-green-500">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-[13px] dark:text-white mb-0.5">データを復元</span>
+                            <span class="text-[10px] text-gray-500">バックアップファイルから環境を復旧</span>
+                        </div>
+                        <input type="file" class="hidden" onchange="importData(this); triggerHaptic();">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mt-4 pb-4 w-full text-center opacity-40">
+                <p class="text-[9px] font-black tracking-widest text-gray-400 uppercase">BookLog OS</p>
+            </div>
+        </div>
+    `;
+
+    // 3. UIを差し替えたため、既存の updateStats() を再実行してチャートと数字を最新化する
+    setTimeout(() => {
+        if (typeof window.updateStats === 'function') {
+            window.updateStats();
+        }
+    }, 150);
+
+})();
+
+// === 100000000% Perfect Timeline UI & Overlap Fix Patch ===
+// 既存のJavaScript機能（保存・検索・描画ロジック）を一切変更せず、
+// CSSの強制力のみで「文字被り」を物理的に排除し、スマホUIを究極洗練させるパッチ
+(function initPerfectTimelineFix() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* ==========================================
+           1. タイムライン文字被りバグの完全解消 (全デバイス共通)
+           ========================================== */
+        /* コンテナ全体を縦積み（Column）に強制し、横への回り込みを物理的に排除 */
+        #bookshelf-timeline {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+
+        /* ヘッダーを独立したブロックとして扱い、確実なクリアランス(隙間)を確保 */
+        .timeline-header {
+            display: flex !important;
+            width: max-content !important;
+            align-self: flex-start !important;
+            margin-top: 24px !important; 
+            margin-bottom: 24px !important; /* ★ここでカードとの隙間を絶対保証 */
+            z-index: 50 !important; /* スクロール時に確実にカードの上に被さるように */
+            clear: both !important;
+        }
+        
+        /* 最初のヘッダーのみ上の隙間を詰める */
+        .timeline-header:first-of-type {
+            margin-top: 0 !important;
+        }
+
+        /* カードのラッパーの横幅を確保し、ヘッダーの下に綺麗に流し込む */
+        #bookshelf-timeline > div.group {
+            width: 100% !important;
+            position: relative !important;
+            z-index: 10 !important; /* ヘッダー(z=50)の下を美しくくぐる */
+        }
+
+        /* ==========================================
+           2. スマホ版 (Mobile) の究極洗練・コンパクト配置
+           ========================================== */
+        @media (max-width: 768px) {
+            /* タイムライン全体の余白を限界まで最適化（画面を広く使う） */
+            .timeline-container {
+                padding-left: 24px !important; 
+                padding-right: 0 !important;
+                overflow-x: hidden !important; 
+            }
+            
+            /* 時間軸（縦ライン）を左端へ寄せてスッキリと */
+            .timeline-line {
+                left: 16px !important;
+                width: 2px !important;
+            }
+            
+            /* ドット位置のズレを強制補正し、ラインの中心に完璧に合わせる */
+            .timeline-dot {
+                left: -14px !important; 
+                top: 22px !important;
+                width: 12px !important;
+                height: 12px !important;
+                border-width: 3px !important;
+            }
+
+            /* ヘッダー（年月）の美化（iOS純正アプリのようなすりガラスと配置） */
+            .timeline-header {
+                margin-left: -24px !important; /* 左端から生えるデザイン */
+                padding: 6px 16px 6px 20px !important;
+                border-radius: 0 12px 12px 0 !important; 
+                border-left: none !important;
+                background: rgba(255, 255, 255, 0.85) !important;
+                backdrop-filter: blur(24px) saturate(200%) !important;
+                -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+            }
+            .dark .timeline-header {
+                background: rgba(28, 28, 30, 0.85) !important;
+            }
+            
+            /* ヘッダー内テキストのサイズ調整 */
+            .timeline-header span:first-child { font-size: 1.15rem !important; }
+            .timeline-header span:last-child { font-size: 0.65rem !important; }
+
+            /* カードのデザインと配置の極限圧縮（右端の見切れ防止） */
+            .timeline-card {
+                margin-left: 12px !important; 
+                margin-bottom: 0 !important;
+                padding: 10px !important; 
+                gap: 12px !important;
+                width: calc(100% - 12px - 12px) !important; /* 画面内に完璧に収める */
+                border-radius: 12px !important;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.04) !important;
+            }
+            
+            /* 書影のスマート化（情報密度を高めつつ邪魔にならないサイズ） */
+            .timeline-card img {
+                width: 46px !important; 
+                height: 66px !important;  
+                border-radius: 6px !important;
+            }
+            
+            /* テキスト情報エリアの高可読性化 */
+            .timeline-card .flex-1.min-w-0 {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+            }
+            
+            /* タイトルは2行まで表示を許容し、長文でも省略されすぎるのを防ぐ */
+            .timeline-card h4 {
+                font-size: 13px !important;
+                line-height: 1.35 !important;
+                white-space: normal !important; 
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                padding-right: 28px !important; /* ランクバッジとの被り防止 */
+                margin-bottom: 2px !important;
+            }
+            
+            .timeline-card p {
+                font-size: 10px !important;
+            }
+            
+            /* ランクバッジの極小化と位置調整 */
+            .timeline-rank-badge {
+                top: 8px !important;
+                right: 8px !important;
+                padding: 2px 6px !important;
+                font-size: 9px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// === 100000000% ABSOLUTE PERFECT TIMELINE OVERHAUL PATCH ===
+// 文字かぶりを「構造的」に不可能にし、全デバイスで美しく表示する最終形態
+(function initAbsolutePerfectTimeline() {
+    // 1. 過去のCSS干渉を断ち切る、クリーンで強力な専用スタイル
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* アニメーション定義 */
+        @keyframes tl-fade-in-up {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* タイムラインコンテナの強制リセット */
+        #bookshelf-timeline {
+            position: relative !important;
+            display: block !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+            max-width: 48rem !important; /* 768px */
+        }
+
+        /* 縦線の絶対配置（絶対にズレない） */
+        .tl-absolute-line {
+            position: absolute !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            left: 24px !important; /* スマホ基準 */
+            width: 2px !important;
+            background: linear-gradient(to bottom, transparent, var(--accent-color) 15%, #32d74b 85%, transparent) !important;
+            opacity: 0.3 !important;
+            z-index: 0 !important;
+        }
+        @media (min-width: 768px) {
+            .tl-absolute-line { left: 32px !important; }
+        }
+
+        /* 月グループ（このブロック構造により絶対に被らない） */
+        .tl-month-group {
+            position: relative !important;
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 40px !important;
+            z-index: 10 !important;
+        }
+
+        /* ヘッダーの独立ブロック化 */
+        .tl-header-wrapper {
+            position: sticky !important;
+            top: 60px !important; /* ナビバーの下 */
+            z-index: 30 !important;
+            display: flex !important;
+            align-items: baseline !important;
+            margin-bottom: 20px !important; /* ★ここでカードとの隙間を絶対保証 */
+            padding: 8px 20px 8px 48px !important; /* 線を避けるパディング */
+            margin-left: -16px !important; /* 画面左端から生やす */
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-radius: 0 16px 16px 0 !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            border-left: none !important;
+            width: max-content !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
+        }
+        .dark .tl-header-wrapper {
+            background: rgba(28, 28, 30, 0.85) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* カードを入れるコンテナ */
+        .tl-cards-container {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            padding-left: 48px !important; /* 縦線を避ける */
+            padding-right: 16px !important;
+        }
+        @media (min-width: 768px) {
+            .tl-header-wrapper { padding-left: 64px !important; margin-left: -24px !important; }
+            .tl-cards-container { padding-left: 64px !important; padding-right: 24px !important; gap: 20px !important; }
+        }
+
+        /* カードのホバーエフェクト */
+        .tl-card-inner {
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        }
+        .tl-card-wrapper:hover .tl-card-inner {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+            border-color: var(--accent-color) !important;
+        }
+        .dark .tl-card-wrapper:hover .tl-card-inner {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4) !important;
+        }
+        
+        /* ドットのホバー連動 */
+        .tl-dot {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .tl-card-wrapper:hover .tl-dot {
+            transform: scale(1.4) !important;
+        }
+        
+        /* 2行制限を強制するクラス */
+        .tl-line-clamp {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            white-space: normal !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. 描画ロジックを根本から書き換え、階層構造（ヘッダーとカードを明確に分ける）を作る
+    window.renderTimeline = function() {
+        const c = document.getElementById('bookshelf-timeline');
+        if (!c) return;
+        
+        // 中身を完全に初期化し、クラスも綺麗にする
+        c.innerHTML = '';
+        c.className = 'w-full py-4';
+
+        // 縦線を追加
+        const line = document.createElement('div');
+        line.className = 'tl-absolute-line';
+        c.appendChild(line);
+
+        // データの取得とソート
+        const books = myBooks
+            .filter(b => !localQuery || (b.title + " " + b.author).toLowerCase().includes(localQuery.toLowerCase()))
+            .sort((a,b) => (b.addedAt||0) - (a.addedAt||0));
+
+        if(books.length === 0) return;
+
+        let lastYM = "";
+        const counts = {};
+        
+        // 月ごとの件数集計
+        books.forEach(b => {
+            const d = new Date(b.addedAt || Date.now());
+            if(isNaN(d.getTime())) return;
+            const ym = `${d.getFullYear()}.${(d.getMonth()+1).toString().padStart(2, '0')}`;
+            counts[ym] = (counts[ym] || 0) + 1;
+        });
+
+        let currentGroup = null;
+        let cardContainer = null;
+        let delayIndex = 0;
+
+        books.forEach(b => {
+            const d = new Date(b.addedAt || Date.now());
+            const safeD = isNaN(d.getTime()) ? new Date() : d;
+            const ym = `${safeD.getFullYear()}.${(safeD.getMonth()+1).toString().padStart(2, '0')}`;
+            
+            // 月が変わったら新しいグループを作成
+            if(ym !== lastYM) {
+                currentGroup = document.createElement('div');
+                currentGroup.className = "tl-month-group";
+                
+                // ヘッダー（絶対にカードと被らない独立したブロック）
+                const h = document.createElement('div');
+                h.className = "tl-header-wrapper";
+                h.innerHTML = `
+                    <span class="text-xl md:text-2xl font-black font-mono dark:text-white tracking-tighter">${ym}</span>
+                    <span class="text-[10px] md:text-xs text-gray-500 font-bold tracking-widest uppercase ml-3">${counts[ym]||0} Books</span>
+                `;
+                currentGroup.appendChild(h);
+
+                // この月のカードを格納するコンテナ
+                cardContainer = document.createElement('div');
+                cardContainer.className = "tl-cards-container";
+                currentGroup.appendChild(cardContainer);
+                
+                c.appendChild(currentGroup);
+                lastYM = ym;
+            }
+            
+            // ステータスごとの色分け
+            const stText = b.status === 'reading' ? '読書中' : (b.status === 'completed' ? '読了' : '追加済');
+            const dotColor = b.status === 'reading' ? 'border-accent' : (b.status === 'completed' ? 'border-green-500' : 'border-gray-400');
+            const stTextColor = b.status === 'reading' ? 'text-accent' : (b.status === 'completed' ? 'text-green-500' : 'text-gray-500');
+            
+            // ランクバッジ
+            let rankHtml = '';
+            if(b.rank) {
+                let rBg = 'bg-gray-500';
+                if(b.rank==='S') rBg = 'bg-gradient-to-br from-yellow-400 to-amber-500';
+                if(b.rank==='A') rBg = 'bg-gradient-to-br from-slate-400 to-slate-500';
+                if(b.rank==='B') rBg = 'bg-gradient-to-br from-orange-500 to-red-500';
+                if(b.rank==='C') rBg = 'bg-gradient-to-br from-zinc-400 to-zinc-500';
+                rankHtml = `<div class="absolute -top-2 -right-2 px-2 py-0.5 rounded-md text-[9px] font-black text-white shadow-md ${rBg} z-20">${b.rank}</div>`;
+            }
+
+            // カード全体（ドット＋本体）
+            const div = document.createElement('div');
+            div.className = "tl-card-wrapper relative w-full";
+            div.style.animation = `tl-fade-in-up 0.4s ease-out ${delayIndex * 0.05}s both`;
+            delayIndex++;
+
+            const displayTitle = typeof window.highlightText === 'function' ? window.highlightText(b.title, localQuery) : window.escapeHTML(b.title);
+            const displayAuthor = typeof window.highlightText === 'function' ? window.highlightText(b.author, localQuery) : window.escapeHTML(b.author);
+            const safeImg = window.escapeHTML(window.getImg(b));
+
+            // PCとスマホでドットの位置を動的に調整
+            div.innerHTML = `
+                <div class="tl-dot absolute top-6 -left-[31px] md:-left-[40px] w-[14px] h-[14px] rounded-full bg-white dark:bg-darkCard border-[3.5px] ${dotColor} shadow-sm z-20"></div>
+                
+                <div class="tl-card-inner relative flex gap-3 md:gap-4 p-3 md:p-4 bg-white dark:bg-darkCard border border-gray-100 dark:border-gray-800 rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.03)] cursor-pointer haptic-tap w-full" onclick="openModal('${b.id}', event); triggerHaptic();">
+                    ${rankHtml}
+                    <img src="${safeImg}" class="w-[52px] h-[74px] md:w-[64px] md:h-[92px] object-cover bg-gray-100 dark:bg-gray-800 shrink-0 rounded-lg shadow-sm">
+                    
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-1 md:mb-1.5">
+                            <span class="text-[9px] md:text-[10px] font-mono font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">${safeD.getDate()}日</span>
+                            <span class="text-[9px] md:text-[10px] font-bold ${stTextColor}">${stText}</span>
+                        </div>
+                        <h4 class="text-[13px] md:text-[15px] font-extrabold text-gray-900 dark:text-white leading-[1.35] tl-line-clamp mb-0.5 md:mb-1">${displayTitle}</h4>
+                        <p class="text-[10px] md:text-[11px] text-gray-500 truncate">${displayAuthor}</p>
+                    </div>
+                </div>
+            `;
+            // 月のコンテナの中にカードを追加（ヘッダーとは兄弟要素になり、絶対に被らない）
+            cardContainer.appendChild(div);
+        });
+    };
+
+    // すでにタイムラインが開かれている場合は、即座に再描画してパッチを適用
+    if (typeof currentView !== 'undefined' && currentView === 'timeline') {
+        if(typeof window.applyView === 'function') window.applyView();
+    }
+})();
+
+// === 100000000% ABSOLUTE FINAL TIMELINE FIX PATCH ===
+// 重なりバグを物理的に不可能にする、インラインスタイル強制上書きパッチ
+(function forceFixTimeline() {
+    window.renderTimeline = function() {
+        const c = document.getElementById('bookshelf-timeline');
+        if (!c) return;
+        
+        // 中身を空にし、コンテナ自体のスタイルを強制リセット（縦積みを絶対保証）
+        c.innerHTML = '';
+        c.style.cssText = 'display: flex !important; flex-direction: column !important; padding-left: 20px !important; position: relative !important; margin-top: 16px !important; margin-bottom: 40px !important;';
+
+        // 背景の縦線
+        const line = document.createElement('div');
+        line.className = 'force-tl-line';
+        line.style.cssText = 'position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: #e5e5ea; z-index: 0; border-radius: 2px;';
+        c.appendChild(line);
+
+        const books = myBooks.filter(b => !localQuery || (b.title + " " + b.author).toLowerCase().includes(localQuery.toLowerCase())).sort((a,b) => (b.addedAt||0) - (a.addedAt||0));
+        
+        let lastYM = "";
+        const counts = {};
+        books.forEach(b => {
+            const d = new Date(b.addedAt || Date.now());
+            if(isNaN(d.getTime())) return;
+            const ym = `${d.getFullYear()}.${(d.getMonth()+1).toString().padStart(2, '0')}`;
+            counts[ym] = (counts[ym] || 0) + 1;
+        });
+
+        books.forEach(b => {
+            const d = new Date(b.addedAt || Date.now());
+            const safeD = isNaN(d.getTime()) ? new Date() : d;
+            const ym = `${safeD.getFullYear()}.${(safeD.getMonth()+1).toString().padStart(2, '0')}`;
+            
+            // 【最重要】年月ヘッダー（Stickyを廃止し、ただのブロック要素として配置することで重なりを絶対防止）
+            if(ym !== lastYM) {
+                const h = document.createElement('div');
+                h.className = 'force-tl-header';
+                h.style.cssText = 'position: relative; z-index: 10; margin-left: -20px; margin-bottom: 16px; margin-top: 24px; padding: 6px 16px; background: rgba(242, 242, 247, 0.9); border-radius: 0 12px 12px 0; display: inline-flex; align-items: baseline; width: max-content; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
+                
+                h.innerHTML = `<span style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.02em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">${ym}</span><span style="font-size: 0.65rem; color: #8e8e93; font-weight: 800; margin-left: 8px; letter-spacing: 0.05em;">${counts[ym]||0} BOOKS</span>`;
+                
+                // 最初のヘッダーは上の余白を消す
+                if(lastYM === "") h.style.marginTop = "0";
+                
+                c.appendChild(h);
+                lastYM = ym;
+            }
+            
+            // カード全体のラッパー
+            const cardWrap = document.createElement('div');
+            cardWrap.style.cssText = 'position: relative; width: 100%; margin-bottom: 16px; padding-left: 20px; z-index: 10; display: flex; align-items: center; box-sizing: border-box;';
+            
+            // ドット
+            const dotColor = b.status === 'reading' ? '#007AFF' : (b.status === 'completed' ? '#32d74b' : '#8e8e93');
+            const dot = document.createElement('div');
+            dot.className = 'force-tl-dot';
+            dot.style.cssText = `position: absolute; left: -5px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: ${dotColor}; border: 3px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); box-sizing: content-box;`;
+            
+            // カード本体
+            const card = document.createElement('div');
+            card.className = 'force-tl-card haptic-tap';
+            card.style.cssText = 'flex: 1; display: flex; gap: 12px; padding: 12px; background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); overflow: hidden; cursor: pointer; transition: transform 0.2s ease;';
+            card.onclick = (e) => { openModal(b.id, e); triggerHaptic(); };
+            
+            const displayTitle = typeof window.highlightText === 'function' ? window.highlightText(b.title, localQuery) : window.escapeHTML(b.title);
+            const displayAuthor = typeof window.highlightText === 'function' ? window.highlightText(b.author, localQuery) : window.escapeHTML(b.author);
+            const safeImg = window.escapeHTML(window.getImg(b));
+
+            card.innerHTML = `
+                <img src="${safeImg}" style="width: 48px; height: 68px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #f2f2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 9px; color: #8e8e93; margin-bottom: 4px; font-family: ui-monospace, monospace; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                        <span style="background: rgba(142, 142, 147, 0.1); padding: 2px 6px; border-radius: 4px;">${safeD.getDate()}日</span>
+                    </div>
+                    <div class="force-tl-title" style="font-size: 13px; font-weight: 800; line-height: 1.4; color: #1d1d1f; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; padding-right: 24px;">${displayTitle}</div>
+                    <div style="font-size: 10px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayAuthor}</div>
+                </div>
+            `;
+            
+            // ランクバッジ
+            if(b.rank) {
+                const rankBadge = document.createElement('div');
+                rankBadge.style.cssText = 'position: absolute; top: 8px; right: 8px; padding: 2px 6px; font-size: 9px; font-weight: 900; color: white; background: #a1a1aa; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);';
+                if(b.rank==='S') rankBadge.style.background = 'linear-gradient(135deg, #facc15, #f59e0b)';
+                if(b.rank==='A') rankBadge.style.background = 'linear-gradient(135deg, #94a3b8, #64748b)';
+                if(b.rank==='B') rankBadge.style.background = 'linear-gradient(135deg, #f97316, #c2410c)';
+                rankBadge.innerText = b.rank;
+                card.appendChild(rankBadge);
+            }
+
+            cardWrap.appendChild(dot);
+            cardWrap.appendChild(card);
+            c.appendChild(cardWrap);
+        });
+        
+        // ダークモード用のCSS（インラインスタイルを上書きするため !important 使用）
+        if (!document.getElementById('force-dark-timeline')) {
+            const ds = document.createElement('style');
+            ds.id = 'force-dark-timeline';
+            ds.innerHTML = `
+                .dark .force-tl-line { background: #2c2c2e !important; }
+                .dark .force-tl-header { background: rgba(28, 28, 30, 0.9) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important; }
+                .dark .force-tl-header span:first-child { color: #ffffff !important; }
+                .dark .force-tl-card { background: #1c1c1e !important; border-color: rgba(255,255,255,0.05) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important; }
+                .dark .force-tl-card:active { transform: scale(0.98); }
+                .dark .force-tl-title { color: #f5f5f7 !important; }
+                .dark .force-tl-dot { border-color: #1c1c1e !important; }
+            `;
+            document.head.appendChild(ds);
+        }
+    };
+    
+    // すでにタイムラインが表示されている場合は再描画
+    if (typeof currentView !== 'undefined' && currentView === 'timeline') {
+        if(typeof applyView === 'function') applyView();
+    }
 })();
     </script>
 </body>
